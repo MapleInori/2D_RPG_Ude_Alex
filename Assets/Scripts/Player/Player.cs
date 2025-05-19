@@ -3,239 +3,126 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+/// <summary>
+/// 玩家脚本，主要用于总体管理。
+/// </summary>
+public class Player : Entity
 {
-    private Rigidbody2D rb;
-    private Animator anim;
-    [SerializeField] private float moveSpeed;    // 移动速度
-    [SerializeField] private float jumpForce;   // 跳跃力度
-
-    private float facingDir = 1;
-    private bool facingRight = true;
-    private float xInput; // 水平输入
-
     [Header("Attack Info")]
-    [SerializeField] private int comboCounter; // 连击计数器
-    [SerializeField] private float comboTimeWindow; // 连击时间窗口
-    [SerializeField] private float comboWindowTimer; // 连击时间窗口计时器
-    [SerializeField] private bool isAttacking; // 是否在攻击
+    public float[] attackMovement;
 
-    [Header("DropAttack Info")]
-    [SerializeField] private float dropAttackSpeed; // 下落攻击速度
-    [SerializeField] private int dropAttackPhase; // 下落攻击阶段
-    [SerializeField] private bool isDropAttacking; // 是否在下落攻击
+    public float baseAttackSpeed = 1f;
+    public float extraAttackSpeed = 0f;
 
-    public bool isRun;                          // 是否在跑
+
+
+    public bool isBusy { get; private set; }
+    [Header("Move Info")]
+    public float moveSpeed = 7f;
+    public float jumpForce = 16f;
+    public float wallJumpForce = 6f;
+    public float dropAttackForce = 50f;
+    public bool isDropAttacking;
+
     [Header("Dash Info")]
-    [SerializeField] private float dashSpeed;        // 冲刺速度
-    [SerializeField] private float dashDuration;    // 冲刺持续时间
-    [SerializeField] private float dashCooldown;     // 冲刺冷却时间
-    [SerializeField] private bool isDashing;        // 是否在冲刺
-    private float dashTimer;        // 冲刺计时器
-    private float dashCooldownTimer; // 冲刺冷却计时器
+    public float dashSpeed; 
+    public float dashDuration;
+    public float dashCoolDown;
+    [HideInInspector]public float dashUsageTimer;
+    [HideInInspector]public float dashDir;
 
 
-    [Header("Collision Info")]
-    [SerializeField] private LayerMask groundLayer; // 地面层
-    [SerializeField] private float groundCheckDistance; // 地面检测距离
-    private bool isGrounded; // 是否在地面上
 
-    // Start is called before the first frame update
-    private void Awake()
+
+    #region States
+    // 声明状态机，用于状态控制
+    public PlayerStateMachine stateMachine { get; private set; }
+    // 声明各种状态，用于后续状态切换，得先有这个状态，才能换到这个状态
+    public PlayerIdleState idleState { get; private set; }
+    public PlayerMoveState moveState { get; private set; }
+    public PlayerAirState airState { get; private set; }
+    public PlayerJumpState jumpState { get; private set; }
+    public PlayerDashState dashState { get; private set; }
+    public PlayerWallSlideState wallSlideState { get; private set; }
+    public PlayerWallHoldState wallHoldState { get; private set; }
+    public PlayerWallJumpState wallJumpState { get; private set; }
+    public PlayerPrimaryAttackState primaryAttackState { get; private set; }
+    public PlayerDropAttackState dropAttackState { get; private set; }
+
+    #endregion
+
+    protected override void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponentInChildren<Animator>();
+        base.Awake();
+        isBusy = false;
+        // 实例化状态机和状态
+        stateMachine = new PlayerStateMachine();
+        idleState = new PlayerIdleState(this,stateMachine,"Idle");
+        moveState = new PlayerMoveState(this,stateMachine,"Move");
+        airState = new PlayerAirState(this, stateMachine, "Jump");
+        jumpState = new PlayerJumpState(this, stateMachine, "Jump");
+        dashState = new PlayerDashState(this, stateMachine, "Dash");
+        wallSlideState = new PlayerWallSlideState(this,stateMachine, "WallSlide");
+        wallHoldState = new PlayerWallHoldState(this, stateMachine, "WallSlideIdle");
+        wallJumpState = new PlayerWallJumpState(this, stateMachine, "Jump");
+        primaryAttackState = new PlayerPrimaryAttackState(this, stateMachine, "Attack");
+        dropAttackState = new PlayerDropAttackState(this, stateMachine, "DropAttack");
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void Start()
     {
-        Move();
-        CheckInput();
-        FlipController();
-        CollisionCheck();
-        PlayAnimation();
-        TimerUpdate();
+        base.Start();
+        stateMachine.Initialize(idleState);
     }
 
-    private void FixedUpdate()
+    protected override void Update()
     {
-
+        base.Update();
+        // 状态机的逻辑更新
+        stateMachine.currentState.Update();
+        CheckForDashInput();
     }
 
-    private void CheckInput()
-    {
-        xInput = Input.GetAxisRaw("Horizontal");
+    
 
-        if(isDropAttacking)
+    public IEnumerator BusyFor(float _second)
+    {
+        isBusy = true;
+        yield return new WaitForSeconds(_second);
+        isBusy = false;
+    }
+
+    public void CheckForDashInput()
+    {
+        // 在墙上不允许冲刺吗？会对着墙冲刺，我觉得这是允许的
+        //if (IsWallDetected())
+        //    return;
+
+        // 限制Dash，增加CD
+        dashUsageTimer -= Time.deltaTime;
+        if(dashUsageTimer < 0f)
         {
-            rb.velocity = new Vector2(0, -dropAttackSpeed);
+            dashUsageTimer = 0f;
         }
-
-        if(Input.GetKeyDown(KeyCode.J))
+        // 当下落攻击时不允许冲刺，落地后才允许冲刺，怎么改都感觉落地后立刻冲刺的操作很僵硬，索性不再限制。
+        // 添加预输入处理，优化了点手感，还是限制一下罢，不然看起来太怪了。
+        if (isDropAttacking) return;
+        // 你就冲吧。————阿杰如是说
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashUsageTimer == 0f)
         {
-            if(isGrounded && !isDropAttacking)
-            {
-                Attack();
-            }
-            else if(!isGrounded && !isDropAttacking)
-            {
-                DropAttack();
-            }
-        }
+            // 确定冲刺方向
+            dashDir = Input.GetAxisRaw("Horizontal");
+            if (dashDir == 0)
+                dashDir = faceDir;
 
-        // 冲刺
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            DashAbility();
-        }
-
-        // Jump
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
-
-    }
-
-    private void Attack()
-    {
-        isAttacking = true;
-        comboWindowTimer = comboTimeWindow; // 重置连击时间窗口计时器
-    }
-
-    public void AttackEnd()
-    {
-        isAttacking = false;
-        // 连击计数增加，允许下一段攻击
-        comboCounter++;
-        if (comboCounter > 2)
-            comboCounter = 0;
-    }
-
-    // 开始下落攻击
-    private void DropAttack()
-    {
-        isDropAttacking = true;
-        dropAttackPhase = 0;
-    }
-    // 下落攻击阶段更新，到保持状态
-    public void DropAttackPhaseUpdate()
-    {
-        if(dropAttackPhase==0)
-        {
-            dropAttackPhase = 1;
+            dashUsageTimer = dashCoolDown;
+            stateMachine.ChangeState(dashState);
         }
     }
-    // 下落攻击结束
-    public void DropAttackEnd()
+    // 动画播放结束时触发调用
+    public void AnimationFinishTrigger()
     {
-        isDropAttacking = false;
-    }
-
-    private void Move()
-    {
-        // 在地面攻击时，不许移动
-        if(isAttacking && isGrounded)
-        {
-            rb.velocity = new Vector2(0,0);
-        }
-        // Dash
-        else if( dashTimer > 0 )
-        {
-            rb.velocity = new Vector2(facingDir * dashSpeed, 0);
-        }
-        else// Run
-        {
-            rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
-        }
-
-    }
-
-    private void DashAbility()
-    {
-        if(dashCooldownTimer <= 0 && !isAttacking && !isDropAttacking)
-        {
-            dashTimer = dashDuration; // 开始冲刺
-            isDashing = true;
-            dashCooldownTimer = dashCooldown;   // 冲刺冷却
-        }
-    }
-
-    private void Jump()
-    {
-        if (isGrounded && !isAttacking && !isDropAttacking)
-        {
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        }
-    }
-
-    private void PlayAnimation()
-    {
-        isRun = Mathf.Abs(rb.velocity.x) > 0.1f; // 判断是否在跑
-
-        anim.SetFloat("yVelocity",rb.velocity.y);
-        anim.SetBool("isRun", isRun); 
-        anim.SetBool("isGrounded",isGrounded);
-        anim.SetBool("isDashing",isDashing); 
-        anim.SetBool("isAttacking",isAttacking); // 攻击动画
-        anim.SetInteger("comboCounter", comboCounter);
-        anim.SetBool("isDropAttacking", isDropAttacking); // 下落攻击动画
-        anim.SetInteger("dropAttackPhase", dropAttackPhase);
-    }
-
-    private void Flip()
-    {
-        facingDir = facingDir * -1;
-        facingRight = !facingRight;
-        transform.Rotate(0f, 180f, 0f); // 翻转角色
-    }
-
-    private void FlipController()
-    {
-        if (rb.velocity.x > 0 && !facingRight)
-        {
-            Flip();
-        }
-        else if (rb.velocity.x < 0 && facingRight)
-        {
-            Flip();
-        }
-    }
-
-    private void CollisionCheck()
-    {
-        // 检测是否在地面上
-        isGrounded = Physics2D.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
-    }
-
-
-    private void TimerUpdate()
-    {
-        dashCooldownTimer -= Time.deltaTime;
-        if(dashCooldownTimer <0)
-        {
-            dashCooldownTimer = 0;
-        }
-
-        dashTimer -= Time.deltaTime;
-        if(dashTimer<0)
-        {
-            dashTimer = 0;
-            isDashing = false;
-        }
-
-        comboWindowTimer -= Time.deltaTime;
-        if(comboWindowTimer <0)
-        {
-            comboWindowTimer = 0;
-            comboCounter = 0; // 重置连击计数器
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
+        stateMachine.currentState.AnimationFinishTrigger();
     }
 
 
