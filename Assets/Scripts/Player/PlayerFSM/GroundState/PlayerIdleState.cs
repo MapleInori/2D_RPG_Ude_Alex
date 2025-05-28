@@ -27,7 +27,7 @@ public class PlayerIdleState : PlayerGroundedState
     {
         base.Update();
         // 当横轴有输入时，让状态机切换到移动状态
-        // 添加忙碌判断，攻击间隔之间不许移动。
+        // 添加忙碌判断，攻击间隔之间不许移动。算是僵直？
         if (xInput != 0 && !player.isBusy)
         {
             stateMachine.ChangeState(player.moveState);

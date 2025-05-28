@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Entity : MonoBehaviour
 {
@@ -9,6 +9,9 @@ public class Entity : MonoBehaviour
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
     public EntityFX fx { get; private set; }
+    public SpriteRenderer sr { get; private set; }
+    public CharacterStats stats { get; private set; }
+    public CapsuleCollider2D capsuleCollider { get; private set; }
     #endregion
 
     [Header("Knockback Info")]
@@ -29,6 +32,8 @@ public class Entity : MonoBehaviour
     public int faceDir { get; private set; } = 1;
     protected bool facingRight = true;
 
+    public UnityAction onFliped;
+
 
     protected virtual void Awake()
     {
@@ -40,6 +45,9 @@ public class Entity : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         fx = GetComponent<EntityFX>();
+        sr = GetComponentInChildren<SpriteRenderer>();
+        stats = GetComponent<CharacterStats>();
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
     }
 
     protected virtual void Update()
@@ -47,9 +55,20 @@ public class Entity : MonoBehaviour
 
     }
 
-    public virtual void Damage()
+    public virtual void SlowEntityBy(float _slowPercentage,float _slowDuration)
     {
-        fx.StartCoroutine("FlashFX");
+
+    }
+
+    protected virtual void ReturnDefaultSpeed()
+    {
+        anim.speed = 1;
+    }
+    /// <summary>
+    /// 受伤效果
+    /// </summary>
+    public virtual void DamageImpact()
+    {
         StartCoroutine("HitKnockback");
     }
 
@@ -109,6 +128,8 @@ public class Entity : MonoBehaviour
         faceDir = faceDir * -1;
         facingRight = !facingRight;
         transform.Rotate(0, 180, 0);
+
+        onFliped?.Invoke();
     }
     /// <summary>
     /// 翻转控制器，用于控制角色的翻转
@@ -125,4 +146,11 @@ public class Entity : MonoBehaviour
         }
     }
     #endregion
+
+
+    public virtual void Die()
+    {
+
+    }
+
 }

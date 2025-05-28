@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+
 
 public class PlayerDashState : PlayerState
 {
@@ -14,11 +12,14 @@ public class PlayerDashState : PlayerState
         base.Enter();
         dashSpeed = player.dashSpeed;
         stateTimer = player.dashDuration;
+
+        player.skill.clone.CreateCloneOnDashStart();
     }
 
     public override void Exit()
     {
         base.Exit();
+        player.skill.clone.CreateCloneOnDashOver();
         // 取消冲刺状态时，设置速度为0
         player.SetVelocity(0, rb.velocity.y);
 

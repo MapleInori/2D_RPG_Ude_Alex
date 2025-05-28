@@ -21,7 +21,14 @@ public class PlayerGroundedState : PlayerState
     public override void Update()
     {
         base.Update();
-
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            stateMachine.ChangeState(player.blackHoleState);
+        }
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            stateMachine.ChangeState(player.counterAttackState);
+        }
         if (Input.GetKeyDown(KeyCode.J))
         {
             stateMachine.ChangeState(player.primaryAttackState);
@@ -38,4 +45,5 @@ public class PlayerGroundedState : PlayerState
             stateMachine.ChangeState(player.jumpState);
         }
     }
+
 }

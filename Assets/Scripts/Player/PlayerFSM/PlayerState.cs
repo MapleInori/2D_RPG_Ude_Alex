@@ -58,6 +58,12 @@ public class PlayerState
         {
             stateTimer -= Time.deltaTime;
         }
+
+        if (Input.GetKeyDown(KeyCode.U) && HasNoSword())
+        {
+            stateMachine.ChangeState(player.aimSwordState);
+            return;
+        }
     }
 
     /// <summary>
@@ -74,5 +80,19 @@ public class PlayerState
     {
         // 动画事件触发器
         triggerCalled = true;
+    }
+
+    /// <summary>
+    /// 场景中是否有剑，有的话回收，没有的话才能瞄准
+    /// </summary>
+    /// <returns></returns>
+    private bool HasNoSword()
+    {
+        if (!player.sword)
+        {
+            return true;
+        }
+        player.sword.GetComponent<Sword_Skill_Controller>().ReturnSword();
+        return false;
     }
 }

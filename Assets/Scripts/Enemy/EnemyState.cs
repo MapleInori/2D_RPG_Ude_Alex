@@ -8,7 +8,7 @@ public class EnemyState
     protected Enemy enemyBase;
     protected Rigidbody2D rb;
 
-    private string animBoolName;
+    protected string animBoolName;
 
     protected bool triggerCalled;
     protected float stateTimer;
@@ -22,7 +22,10 @@ public class EnemyState
 
     public virtual void Update()
     {
-        stateTimer -= Time.deltaTime;
+        if (stateTimer >= 0)
+        {
+            stateTimer -= Time.deltaTime;
+        }
     }
 
     public virtual void Enter()
@@ -30,12 +33,13 @@ public class EnemyState
         triggerCalled = false;
         rb = enemyBase.rb;
         enemyBase.anim.SetBool(animBoolName, true);
+        //Debug.Log(this.GetType().Name);
     }
 
     public virtual void Exit()
     {
         enemyBase.anim.SetBool(animBoolName, false);
-
+        enemyBase.AssignLastAnimName(animBoolName);
     }
 
     public virtual void AnimationFinishTrigger()

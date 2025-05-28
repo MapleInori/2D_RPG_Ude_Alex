@@ -22,7 +22,7 @@ public class SkeletonIdleState : SkeletonGroundedState
     public override void Update()
     {
         base.Update();
-        if(stateTimer < 0f)
+        if(stateTimer <= 0f)
         {
             stateMachine.ChangeState(enemy.moveState);
         }
