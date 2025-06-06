@@ -51,7 +51,7 @@ public class PlayerState
             dashPreInput = true;
             player.dashDir = Input.GetAxisRaw("Horizontal");
             if (player.dashDir == 0)
-                player.dashDir = player.faceDir;
+                player.dashDir = player.facingDir;
         }
 
         if(stateTimer >=0)

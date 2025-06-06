@@ -61,6 +61,7 @@ public class Crystal_Skill_Controller : MonoBehaviour
 
         if (canMove)
         {
+            if (closestTarget == null) return;
             transform.position = Vector2.MoveTowards(transform.position, closestTarget.position, moveSpeed * Time.deltaTime);
 
             if (Vector2.Distance(transform.position, closestTarget.position) < 0.5f)
@@ -85,6 +86,12 @@ public class Crystal_Skill_Controller : MonoBehaviour
             if (hit.GetComponent<Enemy>() != null)
             {
                 player.stats.DoMagicDamage(hit.GetComponent<CharacterStats>());
+
+                ItemData_Equipment equipedAmulet = Inventory.Instance.GetEquipment(EquipmentType.Amulet);
+                if(equipedAmulet != null)
+                {
+                    equipedAmulet.Effect(hit.transform);
+                }
             }
         }
     }

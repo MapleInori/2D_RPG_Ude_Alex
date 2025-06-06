@@ -1,25 +1,47 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+
+
+public enum StatType
+{
+    Strength,
+    Agility,
+    Intelligence,
+    Vitality,
+    Damage,
+    CritChance,
+    CritPower,
+    Health,
+    Armor,
+    Evasion,
+    MagicResistance,
+    FireDamage,
+    IceDamage,
+    LightingDamage
+}
 
 public class CharacterStats : MonoBehaviour
 {
     private EntityFX fx;
 
     [Header("Major stats")]
-    public Stat strength;   // 1点力量加一点攻击和1%暴击伤害
-    public Stat agility;    // 1点敏捷加1%闪避和暴击率
-    public Stat intelligence;   // 1点智力加1法术伤害和1%魔法抗性
-    public Stat vitality;   // 1点耐力增加3点生命值
+    public Stat strength;   // 1点力量加1点攻击和0.1%暴击伤害
+    public Stat agility;    // 1点敏捷加0.1%闪避和暴击率
+    public Stat intelligence;   // 1点智力加1法术伤害和1魔法抗性
+    public Stat vitality;   // 1点生命力增加3点生命值
+
+    // TODO:添加属性转换比率字段，后续使用该字段计算，方便修改
 
     [Header("Offensive Stats")]
     public Stat damage;
-    public Stat critChance;//暴击率
-    public Stat critPower;  // 暴击伤害  基础数值150%
+    public Stat critChance; // 暴击率，百分比
+    public Stat critPower;  // 暴击伤害，百分比，基础数值150%
 
     [Header("Defensive stats")]
-    public Stat maxHealth;
-    public Stat armor;
-    public Stat evasion;
+    public Stat maxHealth;  // 计算生命力之前的最大生命值
+    public Stat armor;  // 护甲
+    public Stat evasion;    // 闪避几率，百分比
     public Stat magicResistance; // 魔法抗性
 
     [Header("Magic Stats")]
@@ -53,7 +75,9 @@ public class CharacterStats : MonoBehaviour
 
     public UnityAction onHealthChanged;
 
-    protected bool isDead;
+    public bool isDead { get; private set; }
+
+
 
     protected virtual void Start()
     {
@@ -105,6 +129,21 @@ public class CharacterStats : MonoBehaviour
         }
     }
 
+    public virtual void IncreaseStatBy(int _modifier, float _duration, Stat _statToModify)
+    {
+        // start corototuine for stat increase
+        StartCoroutine(StatModCoroutine(_modifier, _duration, _statToModify));
+    }
+
+    private IEnumerator StatModCoroutine(int _modifier, float _duration, Stat _statToModify)
+    {
+        _statToModify.AddModifier(_modifier);
+
+        yield return new WaitForSeconds(_duration);
+
+        _statToModify.RemoveModifier(_modifier);
+    }
+
     /// <summary>
     /// 对目标造成伤害，计算护甲
     /// </summary>
@@ -112,21 +151,23 @@ public class CharacterStats : MonoBehaviour
     public virtual void DoDamage(CharacterStats _targetStats)
     {
         if (TargetCanAvoidAttack(_targetStats)) return;
-
-        int totalDamage = damage.GetValue() + strength.GetValue();
-
+        string attackLog = "初始伤害：";
+        float totalDamage = damage.GetValue() + strength.GetValue();
+        attackLog += totalDamage;
         if (CanCrit())
         {
             totalDamage = CalculateCriticalDamage(totalDamage);
+            attackLog += "暴击后\n";
         }
 
 
         totalDamage = CheckTargetArmor(_targetStats, totalDamage);
-
-        _targetStats.TakeDamage(totalDamage);
-
+        // 结算伤害时再四舍五入为整数
+        _targetStats.TakeDamage(Mathf.RoundToInt( totalDamage));
+        attackLog += "实际伤害：" + totalDamage;
+        Debug.Log(attackLog);
         // 如果武器有魔法属性，则可以造成魔法伤害，目前还没有，主要由水晶造成魔法伤害
-        //DoMagicDamage(_targetStats);
+        DoMagicDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
     }
 
     #region Magical Damage and Ailments
@@ -275,7 +316,7 @@ public class CharacterStats : MonoBehaviour
             // 敌人调用自身的shockStrikePrefab来攻击自己
             GameObject newShockStrike = Instantiate(shockStrikePrefab, transform.position, Quaternion.identity);
             // TODO:笔记《获取父类，但是只有子类，为什么可以？转换逻辑是什么？》
-            newShockStrike.GetComponent<ThunderStike_Controller>().Setup(shockeDamage, closestEnemy.GetComponent<CharacterStats>());
+            newShockStrike.GetComponent<ShockStike_Controller>().Setup(shockeDamage, closestEnemy.GetComponent<CharacterStats>());
         }
     }
 
@@ -328,11 +369,24 @@ public class CharacterStats : MonoBehaviour
         }
 
     }
-
+    //TODO:环境伤害如何实现呢？
     protected virtual void DecreaseHealthBy(int _damage)
     {
         currentHealth -= _damage;
-        Debug.Log("currentHeal:" + currentHealth);
+        //Debug.Log("currentHeal:" + currentHealth);
+        onHealthChanged?.Invoke();
+
+    }
+
+    public virtual void IncreaseHealthBy(int _health)
+    {
+        // TODO:可以添加治疗效果增益，比如角色拥有治疗效果增加百分之多少，在这里额外处理
+        currentHealth += _health;
+        if(currentHealth > GetMaxHealthValue())
+        {
+            currentHealth = GetMaxHealthValue();
+        }
+        // 更新血量UI
         onHealthChanged?.Invoke();
 
     }
@@ -344,11 +398,11 @@ public class CharacterStats : MonoBehaviour
 
     #region Stat Calculations
 
-    private int CheckTargetArmor(CharacterStats _targetStats, int totalDamage)
+    private float CheckTargetArmor(CharacterStats _targetStats, float totalDamage)
     {
         if (_targetStats.isChilled)
         {
-            totalDamage -= Mathf.RoundToInt(_targetStats.armor.GetValue() * 0.8f); // 目标处于冰冻状态，护甲降低20%
+            totalDamage -= _targetStats.armor.GetValue() * 0.8f; // 目标处于冰冻状态，护甲降低20%
         }
         else
         {
@@ -362,7 +416,7 @@ public class CharacterStats : MonoBehaviour
 
     private int CheckTargetResistant(CharacterStats _targetStats, int totalMagicDamage)
     {
-        totalMagicDamage -= _targetStats.magicResistance.GetValue() + (_targetStats.intelligence.GetValue() * 3);
+        totalMagicDamage -= _targetStats.magicResistance.GetValue() + (_targetStats.intelligence.GetValue() * 1);
 
         totalMagicDamage = Mathf.Clamp(totalMagicDamage, 0, int.MaxValue);
         return totalMagicDamage;
@@ -370,7 +424,7 @@ public class CharacterStats : MonoBehaviour
 
     private bool TargetCanAvoidAttack(CharacterStats _targetStats)
     {
-        int totalEvasion = _targetStats.evasion.GetValue() + _targetStats.agility.GetValue();
+        float totalEvasion = _targetStats.evasion.GetValue() + _targetStats.agility.GetValue() * 0.001f;
 
         if (isShocked)
         {
@@ -387,7 +441,7 @@ public class CharacterStats : MonoBehaviour
 
     private bool CanCrit()
     {
-        int totalCritChance = critChance.GetValue() + agility.GetValue();
+        float totalCritChance = critChance.GetValue() + agility.GetValue() * 0.001f;
         if (Random.Range(0, 100) < totalCritChance)
         {
             return true;
@@ -396,13 +450,13 @@ public class CharacterStats : MonoBehaviour
         return false;
     }
 
-    private int CalculateCriticalDamage(int _damage)
+    private float CalculateCriticalDamage(float _damage)
     {
-        float totalCritPower = (critPower.GetValue() + strength.GetValue()) * 0.01f;
+        float totalCritPower = critPower.GetValue()*0.01f + strength.GetValue() * 0.001f;
 
         float criticalDamage = _damage * totalCritPower;
 
-        return Mathf.RoundToInt(criticalDamage);
+        return criticalDamage;
 
     }
 
@@ -412,4 +466,24 @@ public class CharacterStats : MonoBehaviour
     }
 
     #endregion
+
+    public Stat GetStat(StatType _statType)
+    {
+        if (_statType == StatType.Strength) return strength;
+        else if (_statType == StatType.Agility) return agility;
+        else if (_statType == StatType.Intelligence) return intelligence;
+        else if (_statType == StatType.Vitality) return vitality;
+        else if (_statType == StatType.Damage) return damage;
+        else if (_statType == StatType.CritChance) return critChance;
+        else if (_statType == StatType.CritPower) return critPower;
+        else if (_statType == StatType.Health) return maxHealth;
+        else if (_statType == StatType.Armor) return armor;
+        else if (_statType == StatType.Evasion) return evasion;
+        else if (_statType == StatType.MagicResistance) return magicResistance;
+        else if (_statType == StatType.FireDamage) return fireDamage;
+        else if (_statType == StatType.IceDamage) return iceDamage;
+        else if (_statType == StatType.LightingDamage) return lightingDamage;
+
+        return null;
+    }
 }

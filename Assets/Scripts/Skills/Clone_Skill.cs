@@ -59,7 +59,7 @@ public class Clone_Skill : Skill
     {
         if (canCreateCloneOnCounterAttack)
         {
-            StartCoroutine(CreateCloneWithDelay(_enemyTransform, new Vector2(1.5f * player.faceDir, 0)));
+            StartCoroutine(CreateCloneWithDelay(_enemyTransform, new Vector2(1.5f * player.facingDir, 0)));
         }
     }
 

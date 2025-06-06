@@ -142,7 +142,7 @@ public class Sword_Skill : Skill
         // 计算最终方向（包含面朝方向修正）
         float rad = throwAngle * Mathf.Deg2Rad;
         finalDir = new Vector2(
-            Mathf.Cos(rad) * player.faceDir, // 水平方向根据面朝方向调整
+            Mathf.Cos(rad) * player.facingDir, // 水平方向根据面朝方向调整
             Mathf.Sin(rad)
         );
         //Debug.Log(finalDir);

@@ -6,7 +6,7 @@ public class PlayerPrimaryAttackState : PlayerState
 {
     private float attackWindow = 1.5f;
     private float lastAttackTime;
-    private int comboCounter;
+    public int comboCounter { get; private set; }
     public PlayerPrimaryAttackState(Player _player, PlayerStateMachine stateMachine, string _animBoolName) : base(_player, stateMachine, _animBoolName)
     {
     }
@@ -24,7 +24,7 @@ public class PlayerPrimaryAttackState : PlayerState
         player.anim.SetInteger("ComboCounter", comboCounter);
 
         // 切换攻击方向，因为根据速度方向与面向方向自动控制翻转，而攻击时会有攻击方向上的速度，所以这里不需要额外处理翻转
-        float attackDir = player.faceDir;
+        float attackDir = player.facingDir;
         if(xInput != 0)
         {
             attackDir = xInput;

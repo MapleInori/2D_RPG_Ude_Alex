@@ -85,8 +85,12 @@ public class Enemy : Entity
             anim.speed = 1;
         }
     }
+    public virtual void FreezeTimeFor(float _duration)
+    {
+        StartCoroutine(FreezeTimeCoroutine(_duration));
+    }
 
-    protected virtual IEnumerator FreezeTimeFor(float _seconds)
+    protected virtual IEnumerator FreezeTimeCoroutine(float _seconds)
     {
         FreezeTime(true);
         yield return new WaitForSeconds(_seconds);
@@ -122,14 +126,14 @@ public class Enemy : Entity
 
     public virtual void AnimationFinishTrigger() => stateMachine.currentState.AnimationFinishTrigger();
 
-    public virtual RaycastHit2D isPlayerDetected() => Physics2D.Raycast(wallCheck.position,Vector2.right * faceDir, checkDistance, playerLayer);
+    public virtual RaycastHit2D isPlayerDetected() => Physics2D.Raycast(wallCheck.position,Vector2.right * facingDir, checkDistance, playerLayer);
 
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
 
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + new Vector3(attackDistance * faceDir, 0));
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(attackDistance * facingDir, 0));
     }
 
 }

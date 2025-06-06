@@ -22,7 +22,7 @@ public class PlayerOnWallState : PlayerState
     {
         base.Update();
 
-        if (xInput != 0 && player.faceDir != xInput)
+        if (xInput != 0 && player.facingDir != xInput)
         {
             stateMachine.ChangeState(player.idleState);
         }

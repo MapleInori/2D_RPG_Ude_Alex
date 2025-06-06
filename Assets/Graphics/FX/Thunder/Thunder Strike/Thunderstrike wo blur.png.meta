@@ -3,7 +3,7 @@ guid: 9c80e2731ce8c0d4c9d1fa0b402c524a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 12
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,6 +64,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
   cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
@@ -75,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -87,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -99,6 +103,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -111,6 +116,20 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -152,7 +171,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5e8e38d9bac8f574ca2fc5cd33d6cd15
+      spriteID: 55d570d7b6b7a804e98cadd0082b9076
       internalID: 1511340517
       vertices: []
       indices: 
@@ -173,7 +192,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4e364320ce06bc3499073f606bc81ca7
+      spriteID: 208e1321488717a4d8500ae15bba395d
       internalID: -1974403397
       vertices: []
       indices: 
@@ -194,7 +213,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: adf7a4d3be6ceb344a4dbfbcd4807714
+      spriteID: 7b9df8f3e0bf7874c9d3c2ca757f87ea
       internalID: 1518905664
       vertices: []
       indices: 
@@ -215,7 +234,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 82e2ff710996ea44bb8c452911df989a
+      spriteID: bcb90971fbb00fa448cf99e733341802
       internalID: -1059594826
       vertices: []
       indices: 
@@ -236,7 +255,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d4d71ecde056fa4cba64243791a8c01
+      spriteID: 37fb0f8ec46b8194abe4c4ef853fa21a
       internalID: -682668735
       vertices: []
       indices: 
@@ -257,7 +276,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 37fae70cc7396b04b9fa35b6c813fb1d
+      spriteID: 8598b3fe34b85c848862086b59c29326
       internalID: 1899016744
       vertices: []
       indices: 
@@ -278,7 +297,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0d27980aed53e50408467e06ac498a23
+      spriteID: cc5075bde59785149be951cc56099854
       internalID: -136769740
       vertices: []
       indices: 
@@ -299,7 +318,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 75892478f0d5e6e468237ac6dd9aa3dd
+      spriteID: a34ffc29459847a43b558d165a1081cd
       internalID: 438928439
       vertices: []
       indices: 
@@ -320,7 +339,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 331c3442288ab5242b98409308c7daef
+      spriteID: 253ae37abcd8a9440ba6d772226acce6
       internalID: -63739321
       vertices: []
       indices: 
@@ -341,7 +360,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d11194cb8ff744e45bdf0f5a3c622fb5
+      spriteID: b96737f5dc69956409d52c12dfcea99b
       internalID: 115856923
       vertices: []
       indices: 
@@ -362,8 +381,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 477ec3464c400a844bf960bcf7f5e6eb
+      spriteID: 79e500c0b656e2f42920c4eae739554b
       internalID: -700554117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thunderstrike wo blur_12
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1d31b12734a38434ba7d476216e8588f
+      internalID: 526640921
       vertices: []
       indices: 
       edges: []
@@ -379,21 +419,21 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Thunderstrike wo blur_4: -1059594826
-      Thunderstrike wo blur_2: -1974403397
-      Thunderstrike wo blur_7: -136769740
-      Thunderstrike wo blur_11: -700554117
-      Thunderstrike wo blur_5: -682668735
       Thunderstrike wo blur_0: -328554044
-      Thunderstrike wo blur_3: 1518905664
-      Thunderstrike wo blur_9: -63739321
-      Thunderstrike wo blur_6: 1899016744
-      Thunderstrike wo blur_8: 438928439
       Thunderstrike wo blur_1: 1511340517
       Thunderstrike wo blur_10: 115856923
-  spritePackingTag: 
+      Thunderstrike wo blur_11: -700554117
+      Thunderstrike wo blur_12: 526640921
+      Thunderstrike wo blur_2: -1974403397
+      Thunderstrike wo blur_3: 1518905664
+      Thunderstrike wo blur_4: -1059594826
+      Thunderstrike wo blur_5: -682668735
+      Thunderstrike wo blur_6: 1899016744
+      Thunderstrike wo blur_7: -136769740
+      Thunderstrike wo blur_8: 438928439
+      Thunderstrike wo blur_9: -63739321
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

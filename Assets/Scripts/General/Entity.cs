@@ -29,7 +29,7 @@ public class Entity : MonoBehaviour
     [SerializeField] protected float wallCheckDistance;
     [SerializeField] protected LayerMask groundLayer;
 
-    public int faceDir { get; private set; } = 1;
+    public int facingDir { get; private set; } = 1;
     protected bool facingRight = true;
 
     public UnityAction onFliped;
@@ -76,7 +76,7 @@ public class Entity : MonoBehaviour
     {
         isKnocked = true;
 
-        rb.velocity = new Vector2(knockbackDirection.x * -faceDir, knockbackDirection.y);
+        rb.velocity = new Vector2(knockbackDirection.x * -facingDir, knockbackDirection.y);
 
         yield return new WaitForSeconds(knockbackDuration);
         isKnocked = false;
@@ -108,7 +108,7 @@ public class Entity : MonoBehaviour
 
     public virtual bool IsWallDetected()
     {
-        return Physics2D.Raycast(wallCheck.position, Vector2.right * faceDir, wallCheckDistance, groundLayer);
+        return Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, wallCheckDistance, groundLayer);
     }
 
     protected virtual void OnDrawGizmos()
@@ -125,7 +125,7 @@ public class Entity : MonoBehaviour
     /// </summary>
     public virtual void Flip()
     {
-        faceDir = faceDir * -1;
+        facingDir = facingDir * -1;
         facingRight = !facingRight;
         transform.Rotate(0, 180, 0);
 
