@@ -17,22 +17,23 @@ public class UI : MonoBehaviour
     [SerializeField] private GameObject inGameUI;
 
 
-
-    //public UI_SkillToolTip skillToolTip;
+    // TODO:toolTip¶¼¸ÄÎªTipPanel
+    public UI_SkillToolTip skillToolTip;
     public UI_ItemToolTip itemToolTip;
     public UI_StatToolTip statToolTip;
-    //public UI_CraftWindow craftWindow;
+    public UI_CraftWindow craftWindow;
 
     //[SerializeField] private UI_VolumeSlider[] volumeSettings;
 
     private void Awake()
     {
-        itemToolTip = GetComponentInChildren<UI_ItemToolTip>();
+
     }
 
     void Start()
     {
         //SwitchTo(inGameUI);
+        SwitchTo(null);
 
         itemToolTip.gameObject.SetActive(false);
         statToolTip.gameObject.SetActive(false);

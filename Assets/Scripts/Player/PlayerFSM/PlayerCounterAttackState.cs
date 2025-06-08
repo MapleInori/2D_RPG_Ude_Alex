@@ -40,11 +40,11 @@ public class PlayerCounterAttackState : PlayerState
                     //TODO: 这里重置时间的具体意义是什么？如果不加会怎样？
                     stateTimer = 5f;
                     player.anim.SetBool("SuccessfulCounterAttack", true);
-
+                    player.skill.parry.UseSkill();  // 恢复一定状态
                     if (canCreateClone)
                     {
                         canCreateClone = false;
-                        player.skill.clone.CreateCloneOnCounterAttack(hit.transform);
+                        player.skill.parry.MakeMirageOnParry(hit.transform);
                     }
                 }
             }

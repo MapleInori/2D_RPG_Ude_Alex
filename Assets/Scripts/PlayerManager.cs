@@ -13,6 +13,7 @@ public class PlayerManager : MonoBehaviour
 
     public Player player;
 
+    public int currency;
     private void Awake()
     {
         // 处理重复实例。差点晕了，多个即使多个PlayerManager，_instance是共享的，是同一个，所以在这里访问的_instance是同一个
@@ -27,7 +28,21 @@ public class PlayerManager : MonoBehaviour
         DontDestroyOnLoad(gameObject); // 按需决定是否跨场景保留
     }
 
+    private void Start()
+    {
+        currency += 458;
+    }
+    public bool HaveEnoughMoney(int _price)
+    {
+        if (_price > currency)
+        {
+            Debug.Log("Not enough money");
+            return false;
+        }
 
+        currency = currency - _price;
+        return true;
+    }
 
 
 }

@@ -8,8 +8,8 @@ using UnityEngine.UI;
 /// </summary>
 public class UI_ItemSlot : MonoBehaviour,IPointerDownHandler,IPointerEnterHandler,IPointerExitHandler
 {
-    [SerializeField] private Image itemImage;   // 该物品槽的物品图标
-    [SerializeField] private TextMeshProUGUI itemText;  // 该物品槽的物品数量
+    [SerializeField] protected Image itemImage;   // 该物品槽的物品图标
+    [SerializeField] protected TextMeshProUGUI itemText;  // 该物品槽的物品数量
 
     protected UI ui;
     public InventoryItem item;  // 该物品槽的物品
@@ -71,6 +71,8 @@ public class UI_ItemSlot : MonoBehaviour,IPointerDownHandler,IPointerEnterHandle
         {
             Inventory.Instance.EquipItem(item.data);
         }
+
+        ui.itemToolTip.HideToolTip();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

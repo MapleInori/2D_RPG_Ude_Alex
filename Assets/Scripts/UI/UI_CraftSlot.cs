@@ -9,10 +9,21 @@ public class UI_CraftSlot : UI_ItemSlot
         UpdateSlot(item);
     }
 
+    protected override void Start()
+    {
+        base.Start();
+    }
+
+    public void SetupCraftSlot(ItemData_Equipment _data)
+    {
+        if (_data == null) return;
+        item.data = _data;
+        itemImage.sprite = _data.icon;
+        itemText.text = _data.itemName;
+    }
+
     public override void OnPointerDown(PointerEventData eventData)
     {
-        ItemData_Equipment craftData = item.data as ItemData_Equipment;
-
-        Inventory.Instance.CanCraft(craftData,craftData.craftingMaterials);
+        ui.craftWindow.SetupCraftWindow(item.data as ItemData_Equipment);
     }
 }

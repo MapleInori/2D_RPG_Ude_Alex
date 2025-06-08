@@ -179,6 +179,8 @@ public class Player : Entity
 
     public void CheckForDashInput()
     {
+        if (skill.dash.dashUnlocked == false)
+            return;
         // 在墙上不允许冲刺吗？会对着墙冲刺，我觉得这是允许的
         //if (IsWallDetected())
         //    return;

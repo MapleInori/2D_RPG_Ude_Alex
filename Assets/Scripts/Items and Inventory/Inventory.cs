@@ -81,7 +81,11 @@ public class Inventory : MonoBehaviour
     {
         for (int i = 0; i < startingItems.Count; i++)
         {
-            AddItem(startingItems[i]);
+            if (startingItems[i] != null)
+            {
+                AddItem(startingItems[i]);
+
+            }
         }
     }
 
@@ -130,7 +134,7 @@ public class Inventory : MonoBehaviour
     private void UpdateSlotUI()
     {
         //TODO:为什么死亡掉落装备之后，装备UI没有消失？
-        
+
         for (int i = 0; i < equipmentSlot.Length; i++)
         {
             foreach (KeyValuePair<ItemData_Equipment, InventoryItem> item in equipmentDictionary)
@@ -252,7 +256,7 @@ public class Inventory : MonoBehaviour
 
     public bool CanAddItem()
     {
-        if(inventory.Count >= inventoryItemSlot.Length)
+        if (inventory.Count >= inventoryItemSlot.Length)
         {
             Debug.Log("Inventory is full");
             return false;
@@ -266,14 +270,14 @@ public class Inventory : MonoBehaviour
     /// <param name="_itemToCraft"></param>
     /// <param name="_requiredMaterials"></param>
     /// <returns></returns>
-    public bool CanCraft(ItemData_Equipment _itemToCraft,List<InventoryItem> _requiredMaterials)
+    public bool CanCraft(ItemData_Equipment _itemToCraft, List<InventoryItem> _requiredMaterials)
     {
         List<InventoryItem> materialsToRemove = new List<InventoryItem>();
         for (int i = 0; i < _requiredMaterials.Count; i++)
         {
-            if (stashDictionary.TryGetValue(_requiredMaterials[i].data,out InventoryItem stashValue))
+            if (stashDictionary.TryGetValue(_requiredMaterials[i].data, out InventoryItem stashValue))
             {
-                if(stashValue.stackSize < _requiredMaterials[i].stackSize)
+                if (stashValue.stackSize < _requiredMaterials[i].stackSize)
                 {
                     Debug.Log(_requiredMaterials[i].data.itemName + " not enough.");
                     return false;
@@ -312,9 +316,9 @@ public class Inventory : MonoBehaviour
     {
         ItemData_Equipment equipmentItem = null;
 
-        foreach (KeyValuePair<ItemData_Equipment,InventoryItem> item in equipmentDictionary)
+        foreach (KeyValuePair<ItemData_Equipment, InventoryItem> item in equipmentDictionary)
         {
-            if(item.Key.equipmentType == _type)
+            if (item.Key.equipmentType == _type)
             {
                 equipmentItem = item.Key;
             }
@@ -341,7 +345,7 @@ public class Inventory : MonoBehaviour
             lastTimeUsedFlask = Time.time;
         }
         else
-            Debug.Log("Flask on cooldown;"); 
+            Debug.Log("Flask on cooldown;");
     }
     public bool CanUseArmor()
     {
