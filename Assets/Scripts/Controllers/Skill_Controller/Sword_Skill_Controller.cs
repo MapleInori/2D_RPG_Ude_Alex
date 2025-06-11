@@ -54,17 +54,17 @@ public class Sword_Skill_Controller : MonoBehaviour
 
     private IEnumerator ChangeColliderRadius()
     {
-        yield return new WaitForSeconds(0.1f); 
+        yield return new WaitForSeconds(0.1f);
         coll.radius = 0.4f;
     }
 
     private void Start()
     {
-        // 最多存在10s
-        Invoke("DestroyMe",10f);
+        // 最多存在10s，延迟销毁时间，可以在Hierarchy的SkillManager中给技能设置
+        Invoke("DestroyMe", delayDestroyTime);
     }
 
-    public void SetupSword(Vector2 _dir, float _gravity, Player _player, float _delayDestroyTime,float _freezeTimeDuration,float _returnSpeed)
+    public void SetupSword(Vector2 _dir, float _gravity, Player _player, float _delayDestroyTime, float _freezeTimeDuration, float _returnSpeed)
     {
         player = _player;
         returnSpeed = _returnSpeed;
@@ -79,10 +79,10 @@ public class Sword_Skill_Controller : MonoBehaviour
 
         }
 
-        spinDirection = Mathf.Clamp(rb.velocity.x,-1,1);
+        spinDirection = Mathf.Clamp(rb.velocity.x, -1, 1);
     }
 
-    public void SetupBounce(bool _isBouncing, int _amountOfBounce,float _bounceSpeed)
+    public void SetupBounce(bool _isBouncing, int _amountOfBounce, float _bounceSpeed)
     {
         isBouncing = _isBouncing;
         bounceAmount = _amountOfBounce;
@@ -95,7 +95,7 @@ public class Sword_Skill_Controller : MonoBehaviour
         pierceAmount = _pierceAmount;
     }
 
-    public void SetupSpin(bool _isSpinning, float _maxTravelDistance,float _spinDuration,float _hitCoolDown)
+    public void SetupSpin(bool _isSpinning, float _maxTravelDistance, float _spinDuration, float _hitCoolDown)
     {
         isSpinning = _isSpinning;
         maxTravelDistance = _maxTravelDistance;
@@ -109,15 +109,18 @@ public class Sword_Skill_Controller : MonoBehaviour
         transform.parent = null;
         isReturning = true;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
+        // 这里可以设置技能CD
     }
 
     private void Update()
     {
+        // TODO:不知为何，加上这段代码后，剑会有吸附效果，当到敌人一定距离后会瞬移到目标点，太奇怪了。
+        // 主要是穿刺剑需要进行图像的朝向修正
         if (canRotate)
         {
             // 剑初始指向右边，只要让右边的方向一直等于速度的方向即可
             transform.right = rb.velocity;
-
         }
 
         if (isReturning)
@@ -146,8 +149,8 @@ public class Sword_Skill_Controller : MonoBehaviour
             if (wasStopped)
             {
                 spinTimer -= Time.deltaTime;
-                transform.position = Vector2.MoveTowards(transform.position,new Vector2(transform.position.x + spinDirection,transform.position.y),1.5f * Time.deltaTime);
-                Debug.Log(spinTimer);
+                transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x + spinDirection, transform.position.y), 1.5f * Time.deltaTime);
+                //Debug.Log(spinTimer);
                 if (spinTimer < 0)
                 {
                     spinTimer = 0;
@@ -178,13 +181,14 @@ public class Sword_Skill_Controller : MonoBehaviour
         wasStopped = true;
         rb.constraints = RigidbodyConstraints2D.FreezePosition;
         // 避免在OnTriggerEnter2D里反复重置时间
-        if (spinTimer <=0)
+        if (spinTimer <= 0)
             spinTimer = spinDuration;
     }
 
     private void DestroyMe()
     {
-       Destroy(gameObject);
+        Destroy(gameObject);
+        // 如果需要CD，可以在这里加入，收剑那里也要加入
     }
 
     private void BounceLogic()
@@ -218,7 +222,7 @@ public class Sword_Skill_Controller : MonoBehaviour
 
         //TODO:为什么弹射的时候没有效果？必须在弹射逻辑里调用才行，这里为什么不触发？
         //Debug.Log("Attack:"+collision.gameObject.name);
-        if(collision.GetComponent<Enemy>() != null)
+        if (collision.GetComponent<Enemy>() != null)
         {
             Enemy enemy = collision.GetComponent<Enemy>();
             SwordSkillDamage(enemy);
@@ -232,8 +236,16 @@ public class Sword_Skill_Controller : MonoBehaviour
 
     private void SwordSkillDamage(Enemy enemy)
     {
-        player.stats.DoDamage(enemy.GetComponent<CharacterStats>());
-        enemy.FreezeTimeFor(freezeTimeDuration);
+        EnemyStats enemyStats = enemy.GetComponent<EnemyStats>();
+
+        player.stats.DoDamage(enemyStats);
+
+        if (player.skill.sword.timeStopUnlocked)
+        {
+            enemy.FreezeTimeFor(freezeTimeDuration);
+        }
+        if (player.skill.sword.vulnerableUnlocked)
+            enemyStats.MakeVulnerableFor(freezeTimeDuration);
         //enemy.StartCoroutine("FreezeTimeCoroutine", freezeTimeDuration);
 
 

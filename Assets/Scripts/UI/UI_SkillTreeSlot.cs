@@ -30,6 +30,8 @@ public class UI_SkillTreeSlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     private void Awake()
     {
+        // TODO:待添加：右键取消学习技能，重新锁定该技能，可以更方便测试.
+        // TODO：先解锁插槽，然后解锁技能，技能那里判断依据是插槽上的bool值，所以这里是Awake，每个技能监听按钮是Start，但是其实不同脚本的Awake和Start顺序是不同的，应该换一种方式
         GetComponent<Button>().onClick.AddListener(() => UnlockSkillSlot());
     }
     private void Start()

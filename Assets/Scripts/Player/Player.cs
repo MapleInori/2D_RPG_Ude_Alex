@@ -123,7 +123,7 @@ public class Player : Entity
         stateMachine.currentState.Update();
         CheckForDashInput();
 
-        if(Input.GetKeyDown(KeyCode.I))
+        if(Input.GetKeyDown(KeyCode.I) && skill.crystal.crystalUnlocked)
         {
             skill.crystal.CanUseSkill();
         }

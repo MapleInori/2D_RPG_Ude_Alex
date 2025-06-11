@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Heal On Hit Effect
   m_EditorClassIdentifier: 
   effectDescription: Heal's you for 10% on hit.
-  healPercent: 0.111
+  healPercent: 0.1

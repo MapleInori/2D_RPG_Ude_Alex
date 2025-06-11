@@ -76,7 +76,7 @@ public class CharacterStats : MonoBehaviour
     public UnityAction onHealthChanged;
 
     public bool isDead { get; private set; }
-
+    private bool isVulnerable;
 
 
     protected virtual void Start()
@@ -95,6 +95,16 @@ public class CharacterStats : MonoBehaviour
             ApplyIgniteDamage();
 
         }
+    }
+    public void MakeVulnerableFor(float _duration) => StartCoroutine(VulnerableCorutine(_duration));
+
+    private IEnumerator VulnerableCorutine(float _duartion)
+    {
+        isVulnerable = true;
+
+        yield return new WaitForSeconds(_duartion);
+
+        isVulnerable = false;
     }
 
 
@@ -167,11 +177,11 @@ public class CharacterStats : MonoBehaviour
         attackLog += "实际伤害：" + totalDamage;
         Debug.Log(attackLog);
         // 如果武器有魔法属性，则可以造成魔法伤害，目前还没有，主要由水晶造成魔法伤害
-        DoMagicDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
+        DoMagicalDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
     }
 
     #region Magical Damage and Ailments
-    public virtual void DoMagicDamage(CharacterStats _targetStats)
+    public virtual void DoMagicalDamage(CharacterStats _targetStats)
     {
         int _fireDamage = fireDamage.GetValue();
         int _iceDamage = iceDamage.GetValue();
@@ -372,7 +382,15 @@ public class CharacterStats : MonoBehaviour
     //TODO:环境伤害如何实现呢？
     protected virtual void DecreaseHealthBy(int _damage)
     {
+
+        if (isVulnerable)
+            _damage = Mathf.RoundToInt(_damage * 1.2f);
+
         currentHealth -= _damage;
+
+        //if (_damage > 0)
+        //    fx.CreatePopUpText(_damage.ToString());
+
         //Debug.Log("currentHeal:" + currentHealth);
         onHealthChanged?.Invoke();
 
@@ -398,7 +416,7 @@ public class CharacterStats : MonoBehaviour
 
     #region Stat Calculations
 
-    private float CheckTargetArmor(CharacterStats _targetStats, float totalDamage)
+    protected float CheckTargetArmor(CharacterStats _targetStats, float totalDamage)
     {
         if (_targetStats.isChilled)
         {
@@ -416,15 +434,23 @@ public class CharacterStats : MonoBehaviour
 
     private int CheckTargetResistant(CharacterStats _targetStats, int totalMagicDamage)
     {
+        // 一点智力增加1点魔抗。TODO:这种属性添加应该直接计算到最终属性上，不然在角色信息面板还要自己算
         totalMagicDamage -= _targetStats.magicResistance.GetValue() + (_targetStats.intelligence.GetValue() * 1);
 
         totalMagicDamage = Mathf.Clamp(totalMagicDamage, 0, int.MaxValue);
         return totalMagicDamage;
     }
 
-    private bool TargetCanAvoidAttack(CharacterStats _targetStats)
+    public virtual void OnEvasion()
     {
-        float totalEvasion = _targetStats.evasion.GetValue() + _targetStats.agility.GetValue() * 0.001f;
+
+    }
+
+
+    protected bool TargetCanAvoidAttack(CharacterStats _targetStats)
+    {
+        // 一点敏捷提高0.1%闪避几率，数值本身就是百分比，所以乘0.1即可
+        float totalEvasion = _targetStats.evasion.GetValue() + _targetStats.agility.GetValue() * 0.1f;
 
         if (isShocked)
         {
@@ -433,15 +459,16 @@ public class CharacterStats : MonoBehaviour
 
         if (Random.Range(0, 100) < totalEvasion)
         {
-
+            _targetStats.OnEvasion();   // 当触发闪避时发生的事情
             return true;
         }
         return false;
     }
 
-    private bool CanCrit()
+    protected bool CanCrit()
     {
-        float totalCritChance = critChance.GetValue() + agility.GetValue() * 0.001f;
+        // 一点敏捷提高0.1%暴击几率，数值本身就是百分比，所以乘0.1即可
+        float totalCritChance = critChance.GetValue() + agility.GetValue() * 0.1f;
         if (Random.Range(0, 100) < totalCritChance)
         {
             return true;
@@ -450,9 +477,10 @@ public class CharacterStats : MonoBehaviour
         return false;
     }
 
-    private float CalculateCriticalDamage(float _damage)
+    protected float CalculateCriticalDamage(float _damage)
     {
-        float totalCritPower = critPower.GetValue()*0.01f + strength.GetValue() * 0.001f;
+        // 一点力量提高0.1%暴击伤害.计算总体爆伤，然后转化为百分比
+        float totalCritPower = (critPower.GetValue() + strength.GetValue() * 0.1f)*0.01f;
 
         float criticalDamage = _damage * totalCritPower;
 

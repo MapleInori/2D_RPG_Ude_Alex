@@ -12,7 +12,10 @@ public class Clone_Skill_Controller : MonoBehaviour
     private SpriteRenderer sr;
     private Animator anim;
     private float cloneFadeTime;
+
+
     private float cloneTimer;
+    private float attackMultiplier;
     [SerializeField] private Transform attackCheck;
     [SerializeField] private float attackCheckRadius = 0.8f;
     private Transform closestEnemy;
@@ -56,7 +59,8 @@ public class Clone_Skill_Controller : MonoBehaviour
 
     public void SetupClone
         (Transform _newTransform, float _cloneDuration, float _cloneFadeTime, 
-        bool _canAttack, Vector3 _offset, Transform _closestEnemy, bool _canDuplicate,float _chanceToDuplicate,Player _player)
+        bool _canAttack, Vector3 _offset, Transform _closestEnemy, bool _canDuplicate,
+        float _chanceToDuplicate,Player _player,float _attackMultiplier)
     {
         transform.position = _newTransform.position + _offset;
         cloneTimer = _cloneDuration;
@@ -65,6 +69,7 @@ public class Clone_Skill_Controller : MonoBehaviour
         canDuplicateClone = _canDuplicate;
         chanceToDuplicate = _chanceToDuplicate;
         player = _player;
+        attackMultiplier = _attackMultiplier;
         // 面向最近的敌人
         FaceClosestEnemy();
 
@@ -90,7 +95,19 @@ public class Clone_Skill_Controller : MonoBehaviour
         {
             if (hit.GetComponent<Enemy>() != null)
             {
-                player.stats.DoDamage(hit.GetComponent<CharacterStats>());
+                //hit.GetComponent<Entity>().SetupKnockbackDir(transform);
+                PlayerStats playerStats = player.GetComponent<PlayerStats>();
+                EnemyStats enemyStats = hit.GetComponent<EnemyStats>();
+
+                playerStats.CloneDoDamage(enemyStats, attackMultiplier);
+
+                if (player.skill.clone.canApplyOnHitEffect)
+                {
+                    ItemData_Equipment weaponData = Inventory.Instance.GetEquipment(EquipmentType.Weapon);
+
+                    if (weaponData != null)
+                        weaponData.Effect(hit.transform);
+                }
                 if (canDuplicateClone)
                 {
                     if (Random.Range(0, 100) < chanceToDuplicate)

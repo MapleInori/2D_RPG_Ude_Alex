@@ -50,4 +50,31 @@ public class PlayerStats : CharacterStats
         if (currentArmor != null)
             currentArmor.Effect(player.transform);
     }
+
+    public override void OnEvasion()
+    {
+        player.skill.dodge.CreateMirageOnDodge();
+    }
+
+    public void CloneDoDamage(CharacterStats _targetStats, float _multiplier)
+    {
+        if (TargetCanAvoidAttack(_targetStats))
+            return;
+
+        float totalDamage = damage.GetValue() + strength.GetValue();
+
+        if (_multiplier > 0)
+            totalDamage = totalDamage * _multiplier;
+
+        if (CanCrit())
+        {
+            totalDamage = CalculateCriticalDamage(totalDamage);
+        }
+
+        totalDamage = CheckTargetArmor(_targetStats, totalDamage);
+        _targetStats.TakeDamage(Mathf.RoundToInt(totalDamage));
+
+
+        DoMagicalDamage(_targetStats); // remove if you don't want to apply magic hit on primary attack
+    }
 }

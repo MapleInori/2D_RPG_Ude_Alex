@@ -27,13 +27,12 @@ public class UI : MonoBehaviour
 
     private void Awake()
     {
-
+        SwitchTo(skillTreeUI); // we need this to assign events on skill tree slots before we asssign events on skill scripts
     }
 
     void Start()
     {
-        //SwitchTo(inGameUI);
-        SwitchTo(null);
+        SwitchTo(inGameUI);
 
         itemToolTip.gameObject.SetActive(false);
         statToolTip.gameObject.SetActive(false);
@@ -78,10 +77,22 @@ public class UI : MonoBehaviour
         if (_menu != null && _menu.activeSelf)
         {
             _menu.SetActive(false);
-            //CheckForInGameUI();
+            CheckForInGameUI();
             return;
         }
 
         SwitchTo(_menu);
+    }
+
+    private void CheckForInGameUI()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            // 只要有一个UI处于显示状态，就不用显示战斗时UI
+            if (transform.GetChild(i).gameObject.activeSelf /*&& transform.GetChild(i).GetComponent<UI_FadeScreen>() == null*/)
+                return;
+        }
+
+        SwitchTo(inGameUI);
     }
 }

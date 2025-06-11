@@ -1,29 +1,102 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Crystal_Skill : Skill
 {
+    //TODO： 这个技能不能加CD，如果加了CD，放下水晶后立刻进入CD导致无法瞬移，如果要加CD需要进行适当修改。CD位于Skill中，在这里如果要用，需要额外处理
+    // 要加CD应该是完整用完一次后进入CD
+
     [SerializeField] private float crystalDuration;
     [SerializeField] private GameObject crystalPrefab;
     private GameObject currentCrystal;
 
+    [Header("Crystal simple")]
+    [SerializeField] private UI_SkillTreeSlot unlockCrystalButton;
+    public bool crystalUnlocked { get; private set; }
+
     [Header("Crystal Mirage")]
+    [SerializeField] private UI_SkillTreeSlot unlockCloneInstaedButton;
     [SerializeField] private bool cloneInsteadOfCrystal;
 
-    [Header("Explosive Crystal")]
+    [Header("Explosive crystal")]
+    [SerializeField] private UI_SkillTreeSlot unlockExplosiveButton;
+    [SerializeField] private float explisoveCooldown;
     [SerializeField] private bool canExplode;
 
     [Header("Moving Crystal")]
+    [SerializeField] private UI_SkillTreeSlot unlockMovingCrystalButton;
     [SerializeField] private bool canMoveToEnemy;
     [SerializeField] private float moveSpeed;
 
     [Header("Multi stacking crystal")]
-    [SerializeField] private bool canUseMultiStack;
+    [SerializeField] private UI_SkillTreeSlot unlockMultiStackButton;
+    [SerializeField] private bool canUseMultiStacks;
     [SerializeField] private int amountOfStacks;
     [SerializeField] private float multiStackCoolDown;
     [SerializeField] private float useTimeWindow;   // 使用时间窗口，该时间内没有继续使用则进入CD
     [SerializeField] private List<GameObject> crystalLeft = new List<GameObject>();
+
+
+    protected override void Start()
+    {
+        base.Start();
+
+        unlockCrystalButton.GetComponent<Button>().onClick.AddListener(UnlockCrystal);
+        unlockCloneInstaedButton.GetComponent<Button>().onClick.AddListener(UnlockCrystalMirage);
+        unlockExplosiveButton.GetComponent<Button>().onClick.AddListener(UnlockExplosiveCrystal);
+        unlockMovingCrystalButton.GetComponent<Button>().onClick.AddListener(UnlockMovingCrystal);
+        unlockMultiStackButton.GetComponent<Button>().onClick.AddListener(UnlockMultiStack);
+
+    }
+
+    // here we unlock crystal skills
+    #region Unlock skill region
+
+    //protected override void CheckUnlock()
+    //{
+    //    UnlockCrystal();
+    //    UnlockCrystalMirage();
+    //    UnlockExplosiveCrystal();
+    //    UnlockMovingCrystal();
+    //    UnlockMultiStack();
+    //}
+    private void UnlockCrystal()
+    {
+        if (unlockCrystalButton.unlocked)
+            crystalUnlocked = true;
+    }
+
+    private void UnlockCrystalMirage()
+    {
+        if (unlockCloneInstaedButton.unlocked)
+            cloneInsteadOfCrystal = true;
+    }
+
+    private void UnlockExplosiveCrystal()
+    {
+        if (unlockExplosiveButton.unlocked)
+        {
+            canExplode = true;
+            cooldown = explisoveCooldown;
+        }
+    }
+
+    private void UnlockMovingCrystal()
+    {
+        if (unlockMovingCrystalButton.unlocked)
+            canMoveToEnemy = true;
+    }
+
+    private void UnlockMultiStack()
+    {
+        if (unlockMovingCrystalButton.unlocked)
+            canUseMultiStacks = true;
+    }
+
+    #endregion     // here we unlock crystal skills
+
 
     public override void UseSkill()
     {
@@ -76,7 +149,7 @@ public class Crystal_Skill : Skill
 
     private bool CanUseMultiCrystal()
     {
-        if (canUseMultiStack)
+        if (canUseMultiStacks)
         {
             // 重新生成水晶
             if (crystalLeft.Count > 0)

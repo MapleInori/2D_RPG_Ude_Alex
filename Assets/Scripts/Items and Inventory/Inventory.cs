@@ -37,7 +37,7 @@ public class Inventory : MonoBehaviour
     private UI_StatSlot[] statSlot;
 
     [Header("Item Cooldown")]
-    private float flaskCooldown;
+    public float flaskCooldown;
     private float armorCooldown;
     private float lastTimeUsedFlask;
     private float lastTimeUsedArmor;
@@ -163,6 +163,13 @@ public class Inventory : MonoBehaviour
         {
             stashItemSlot[i].UpdateSlot(stash[i]);
         }
+        UpdateStatsUI();
+    }
+    /// <summary>
+    /// 更新角色信息面板
+    /// </summary>
+    public void UpdateStatsUI()
+    {
         for (int i = 0; i < statSlot.Length; i++)
         {
             statSlot[i].UpdateStatValueUI();

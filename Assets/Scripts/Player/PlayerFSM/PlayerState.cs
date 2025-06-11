@@ -59,7 +59,7 @@ public class PlayerState
             stateTimer -= Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.U) && HasNoSword())
+        if (Input.GetKeyDown(KeyCode.U) && HasNoSword() && player.skill.sword.swordUnlocked)
         {
             stateMachine.ChangeState(player.aimSwordState);
             return;

@@ -1,6 +1,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public enum SwordType
@@ -16,30 +17,42 @@ public enum SwordType
 public class Sword_Skill : Skill
 {
     [SerializeField] private SwordType swordType = SwordType.Normal;
-    [Header("Bounce Info")]
-    [SerializeField] private int bounceAmount;
-    [SerializeField] private float bounceGravity;
-    [SerializeField] private float bounceSpeed;
-
-    [Header("Pierce Info")]
-    [SerializeField] private int pierceAmount;
-    [SerializeField] private float pierceGravity;
-
-    [Header("Spin Info")]
-    [SerializeField] private float hitCoolDown;
-    [SerializeField] private float maxTravelDistance;
-    [SerializeField] private float spinDuration;
-    [SerializeField] private float spinGravity;
 
     [Header("Skill Info")]
+    [SerializeField] private UI_SkillTreeSlot swordUnlockButton;
+    public bool swordUnlocked { get; private set; }
     [SerializeField] private GameObject swordPrefab;
-    [SerializeField] private Vector2 launchDir;
     [SerializeField] private float launchSpeed;
     [SerializeField] private float swordGravity;
     [SerializeField] private float delayDestroyTime;
     [SerializeField] private float normalGravity;
     [SerializeField] private float freezeTimeDuration;
     [SerializeField] private float returnSpeed;
+
+    [Header("Passive skills")]
+    [SerializeField] private UI_SkillTreeSlot timeStopUnlockButton;
+    public bool timeStopUnlocked { get; private set; }
+    [SerializeField] private UI_SkillTreeSlot vulnerableUnlockButton;
+    public bool vulnerableUnlocked { get; private set; }
+
+    [Header("Bounce Info")]
+    [SerializeField] private UI_SkillTreeSlot bounceUnlockButton;
+    [SerializeField] private int bounceAmount;
+    [SerializeField] private float bounceGravity;
+    [SerializeField] private float bounceSpeed;
+
+    [Header("Pierce Info")]
+    [SerializeField] private UI_SkillTreeSlot pierceUnlockButton;
+    [SerializeField] private int pierceAmount;
+    [SerializeField] private float pierceGravity;
+
+    [Header("Spin Info")]
+    [SerializeField] private UI_SkillTreeSlot spinUnlockButton;
+    [SerializeField] private float hitCoolDown;
+    [SerializeField] private float maxTravelDistance;
+    [SerializeField] private float spinDuration;
+    [SerializeField] private float spinGravity;
+
 
     [Header("Aim Info")]
     public float throwAngle = 0f; // 当前角度
@@ -57,16 +70,76 @@ public class Sword_Skill : Skill
 
     private Vector2 finalDir;
 
-    private Transform swordTrans;
-
-    private SwordType lastSwordType;
+    private SwordType lastSwordType;    // 暂时没用了，可以删除
 
     protected override void Start()
     {
         base.Start();
         GenerateDots();
         SetupGravity();
+
+        // 获取技能解锁按钮，监听解锁情况
+        swordUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockSword);
+        bounceUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockBounceSword);
+        pierceUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockPierceSword);
+        spinUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockSpinSword);
+        timeStopUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockTimeStop);
+        vulnerableUnlockButton.GetComponent<Button>().onClick.AddListener(UnlockVulnurable);
     }
+
+    #region 技能解锁区域
+    // TODO：如果有重置技能的道具，解锁方法就应该添加else，当未解锁时重新锁定技能，在重置技能后调用CheckUnlock方法。读档的时候默认未解锁，所以直接检查即可。
+    //protected override void CheckUnlock()
+    //{
+    //    UnlockSword();
+    //    UnlockBounceSword();
+    //    UnlockSpinSword();
+    //    UnlockPierceSword();
+    //    UnlockTimeStop();
+    //    UnlockVulnurable();
+    //}
+    private void UnlockTimeStop()
+    {
+        if (timeStopUnlockButton.unlocked)
+            timeStopUnlocked = true;
+    }
+
+    private void UnlockVulnurable()
+    {
+        if (vulnerableUnlockButton.unlocked)
+            vulnerableUnlocked = true;
+    }
+
+    private void UnlockSword()
+    {
+        if (swordUnlockButton.unlocked)
+        {
+            swordType = SwordType.Normal;
+            swordUnlocked = true;
+        }
+    }
+
+    private void UnlockBounceSword()
+    {
+        if (bounceUnlockButton.unlocked)
+            swordType = SwordType.Bounce;
+    }
+
+    private void UnlockPierceSword()
+    {
+        if (pierceUnlockButton.unlocked)
+            swordType = SwordType.Pierce;
+    }
+
+    private void UnlockSpinSword()
+    {
+        if (spinUnlockButton.unlocked)
+            swordType = SwordType.Spin;
+    }
+
+
+
+    #endregion
 
     private void SetupGravity()
     {
