@@ -8,7 +8,7 @@ using UnityEngine;
 public class Skill : MonoBehaviour
 {
     public float cooldown;
-    protected float cooldownTimer;
+    public float cooldownTimer;
     protected Player player;
 
     protected virtual void Awake()
@@ -16,17 +16,20 @@ public class Skill : MonoBehaviour
         // TODO:可能获取不到
     }
 
-    private IEnumerator GetInstance()
-    {
-        yield return null;
-    }
     // Start is called before the first frame update
     protected virtual void Start()
     {
         player = PlayerManager.Instance.player;
+        // TODO：可能无法读档解锁，因为它的执行在读档之前，导致读档时这里提前检查完了，CNMLGB，又是执行顺序问题，读档的顺序怎么这么靠后？
+        //CheckUnlock();
+        Invoke("CheckUnlock",1);
 
     }
 
+    protected virtual void CheckUnlock()
+    {
+
+    }
     // Update is called once per frame
     protected virtual void Update()
     {

@@ -22,7 +22,7 @@ public class UI_InGame : MonoBehaviour
     [Header("Souls info")]
     [SerializeField] private TextMeshProUGUI currentSouls;
     [SerializeField] private float soulsAmount;
-    [SerializeField] private float increaseRate = 233;
+    [SerializeField] private float increaseRate = 2333;
 
     // TODO：不在技能图标上放按键文字，有点遮挡，打算放设置里
 
@@ -67,7 +67,9 @@ public class UI_InGame : MonoBehaviour
 
     }
 
-
+    /// <summary>
+    /// 更新UI中的灵魂数量显示，其实就是钱
+    /// </summary>
     private void UpdateSoulsUI()
     {
         if (soulsAmount < PlayerManager.Instance.GetCurrency())

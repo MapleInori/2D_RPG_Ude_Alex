@@ -15,8 +15,8 @@ public class Entity : MonoBehaviour
     #endregion
 
     [Header("Knockback Info")]
-    [SerializeField] private Vector2 knockbackDirection;
-    [SerializeField] private float knockbackDuration;
+    [SerializeField] protected Vector2 knockbackPower;    // 受击后被击退的力量，将玩家设置为0可以避免玩家被击退
+    [SerializeField] public float knockbackDuration;
     protected bool isKnocked;
 
 
@@ -33,7 +33,7 @@ public class Entity : MonoBehaviour
     protected bool facingRight = true;
 
     public UnityAction onFliped;
-
+    private int knockbackDir;
 
     protected virtual void Awake()
     {
@@ -52,7 +52,10 @@ public class Entity : MonoBehaviour
 
     protected virtual void Update()
     {
-
+        if(Time.timeScale == 0)
+        {
+            return;
+        }
     }
 
     public virtual void SlowEntityBy(float _slowPercentage,float _slowDuration)
@@ -65,21 +68,43 @@ public class Entity : MonoBehaviour
         anim.speed = 1;
     }
     /// <summary>
-    /// 受伤效果
+    /// 受伤后效果，在伤害计算后
     /// </summary>
     public virtual void DamageImpact()
     {
         StartCoroutine("HitKnockback");
     }
 
+    public virtual void SetupKnockbackDir(Transform _damageDirection)
+    {
+        if (_damageDirection.position.x > transform.position.x)
+            knockbackDir = -1;
+        else if (_damageDirection.position.x < transform.position.x)
+            knockbackDir = 1;
+
+
+    }
+    /// <summary>
+    /// 设置击退力量，在伤害计算前
+    /// </summary>
+    /// <param name="_knockbackpower"></param>
+    public void SetupKnockbackPower(Vector2 _knockbackpower) => knockbackPower = _knockbackpower;
     protected virtual IEnumerator HitKnockback()
     {
         isKnocked = true;
 
-        rb.velocity = new Vector2(knockbackDirection.x * -facingDir, knockbackDirection.y);
-
+        if (knockbackPower.x > 0 || knockbackPower.y > 0) // This line makes player immune to freeze effect when he takes hit
+            rb.velocity = new Vector2((knockbackPower.x ) * knockbackDir, knockbackPower.y);
+        // 即使玩家没有被击退，这里会导致持续期间isKnocked为true无法移动，以及这期间松开移动按键会保持滑行，
+        // 因为进入Idle时，调用的SetZeroVelocity由于检测到被击退没有设置速度，所以玩家不该有初始knockbackDuration，应该在使用时设置，使用后重置为0
         yield return new WaitForSeconds(knockbackDuration);
         isKnocked = false;
+        SetupZeroKnockbackPower();
+    }
+
+    protected virtual void SetupZeroKnockbackPower()
+    {
+
     }
 
     #region Velocity Methods
@@ -150,7 +175,7 @@ public class Entity : MonoBehaviour
 
     public virtual void Die()
     {
-
+        Destroy(gameObject, 5f);
     }
 
 }

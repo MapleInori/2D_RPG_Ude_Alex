@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UI_SkillTreeSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UI_SkillTreeSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISaveManager
 {
     private UI ui;
     private Image skillImage;
@@ -87,4 +87,34 @@ public class UI_SkillTreeSlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         ui.skillToolTip.HideToolTip();
     }
 
+    /// <summary>
+    /// 每个技能从存档中读取学习数据，将技能的解锁状态设置为存档中的值
+    /// </summary>
+    /// <param name="_data"></param>
+    public void LoadData(GameData _data)
+    {
+        //Debug.Log("加载技能 " + skillName + " 的状态");
+        if (_data.skillTree.TryGetValue(skillName, out bool value))
+        {
+            unlocked = value;
+        }
+    }
+    /// <summary>
+    /// 每个技能将自己的解锁状态保存到存档中
+    /// </summary>
+    /// <param name="_data"></param>
+    public void SaveData(ref GameData _data)
+    {
+        //Debug.Log("存档技能");
+        if (_data.skillTree.TryGetValue(skillName, out bool value))
+        {
+            // 如果存档中已经有该技能的解锁状态，则更新它
+            _data.skillTree.Remove(skillName);
+            _data.skillTree.Add(skillName, unlocked);
+        }
+        else
+            _data.skillTree.Add(skillName, unlocked);
+
+        //Debug.Log("Skill " + skillName + " saved with status: " + unlocked);
+    }
 }

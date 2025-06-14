@@ -24,7 +24,15 @@ public class PlayerStats : CharacterStats
         base.Die();
 
         player.Die();
+
+        GameManager.Instance.lostCurrencyAmount = PlayerManager.Instance.currency;
+        PlayerManager.Instance.currency = 0;
         GetComponent<PlayerItemDrop>()?.GenerateDrop();
+    }
+
+    public override void KillSelf()
+    {
+        base.KillSelf();
     }
 
     protected override void DecreaseHealthBy(int _damage)
@@ -33,15 +41,17 @@ public class PlayerStats : CharacterStats
 
         if (isDead)
             return;
-
+        // 玩家收到高额伤害设置被击退和画面震动，然后效果中应用
         if (_damage > GetMaxHealthValue() * .3f)
         {
-            //player.SetupKnockbackPower(new Vector2(10, 6));
+            player.SetupKnockbackPower(new Vector2(10, 6));
+            player.knockbackDuration = 0.3f;
             //player.fx.ScreenShake(player.fx.shakeHighDamage);
 
 
-            //int randomSound = Random.Range(34, 35);
-            //AudioManager.instance.PlaySFX(randomSound, null);
+            int randomSound = Random.Range(34, 36);
+            Debug.Log(randomSound);
+            AudioManager.Instance.PlaySFX(randomSound, null);
 
         }
 

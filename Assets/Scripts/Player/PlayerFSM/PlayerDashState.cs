@@ -12,7 +12,7 @@ public class PlayerDashState : PlayerState
         base.Enter();
         dashSpeed = player.dashSpeed;
         stateTimer = player.dashDuration;
-
+        player.stats.SetInvincible(true);
         player.skill.dash.CreateCloneOnDashStart();
     }
 
@@ -22,6 +22,7 @@ public class PlayerDashState : PlayerState
         player.skill.dash.CreateCloneOnDashOver();
         // 取消冲刺状态时，设置速度为0
         player.SetVelocity(0, rb.velocity.y);
+        player.stats.SetInvincible(false);
 
     }
 

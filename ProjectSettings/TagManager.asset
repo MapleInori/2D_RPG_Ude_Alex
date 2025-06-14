@@ -47,6 +47,9 @@ TagManager:
   - name: Ground
     uniqueID: 4199327329
     locked: 0
+  - name: CheckPoint
+    uniqueID: 678091737
+    locked: 0
   - name: Item
     uniqueID: 2314054781
     locked: 0

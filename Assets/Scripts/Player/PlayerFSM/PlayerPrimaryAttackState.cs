@@ -14,9 +14,9 @@ public class PlayerPrimaryAttackState : PlayerState
     public override void Enter()
     {
         base.Enter();
-
+        //AudioManager.instance.PlaySFX(2,player.transform);
         // Time.time全局变量，所以只需要依靠最后攻击时间和攻击窗口期即可判断连击，而不需要计时器
-        if(comboCounter > 2 || Time.time > lastAttackTime + attackWindow)
+        if (comboCounter > 2 || Time.time > lastAttackTime + attackWindow)
         {
             comboCounter = 0;
         }

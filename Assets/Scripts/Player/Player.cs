@@ -8,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public class Player : Entity
 {
+
     [Header("Attack Info")]
     public float[] attackMovement;
     public float counterAttackDuration = 0.2f;
@@ -87,7 +88,6 @@ public class Player : Entity
         blackHoleState = new PlayerBlackHoleState(this, stateMachine, "Jump");
 
         deadState = new PlayerDeadState(this, stateMachine, "Die");
-
     }
 
     protected override void Start()
@@ -179,6 +179,18 @@ public class Player : Entity
 
     public void CheckForDashInput()
     {
+        // TODO：重新加载场景时，skill可能没有加载完成导致空引用NullReferenceException: Object reference not set to an instance of an object
+        // 这种问题也太常见了....
+        if (skill == null)
+        {
+            if(skill.dash == null)
+            {
+                Debug.Log("Skill.dash is null");
+                return;
+            }
+            Debug.Log("Skill is null");
+            return;
+        }
         if (skill.dash.dashUnlocked == false)
             return;
         // 在墙上不允许冲刺吗？会对着墙冲刺，我觉得这是允许的
@@ -217,5 +229,13 @@ public class Player : Entity
         base.Die();
 
         stateMachine.ChangeState(deadState);
+    }
+    /// <summary>
+    /// 在受到伤害后调用，清空玩家被击退力量，避免普通伤害也造成击退
+    /// </summary>
+    protected override void SetupZeroKnockbackPower()
+    {
+        knockbackPower = new Vector2(0, 0);
+        knockbackDuration = 0f;
     }
 }

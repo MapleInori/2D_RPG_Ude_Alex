@@ -39,6 +39,13 @@ public class Parry_Skill : Skill
         }
     }
 
+    protected override void CheckUnlock()
+    {
+        UnlockParry();
+        UnlockParryRestore();
+        UnlockParryWithMirage();
+    }
+
     private void UnlockParry()
     {
         if (parryUnlockButton.unlocked)

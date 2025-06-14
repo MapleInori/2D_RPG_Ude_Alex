@@ -89,15 +89,15 @@ public class Sword_Skill : Skill
 
     #region 技能解锁区域
     // TODO：如果有重置技能的道具，解锁方法就应该添加else，当未解锁时重新锁定技能，在重置技能后调用CheckUnlock方法。读档的时候默认未解锁，所以直接检查即可。
-    //protected override void CheckUnlock()
-    //{
-    //    UnlockSword();
-    //    UnlockBounceSword();
-    //    UnlockSpinSword();
-    //    UnlockPierceSword();
-    //    UnlockTimeStop();
-    //    UnlockVulnurable();
-    //}
+    protected override void CheckUnlock()
+    {
+        UnlockSword();
+        UnlockBounceSword();
+        UnlockSpinSword();
+        UnlockPierceSword();
+        UnlockTimeStop();
+        UnlockVulnurable();
+    }
     private void UnlockTimeStop()
     {
         if (timeStopUnlockButton.unlocked)

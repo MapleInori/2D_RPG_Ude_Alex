@@ -6,6 +6,8 @@ public class EnemyStats : CharacterStats
 {
     private Enemy enemy;
     private ItemDrop myDropSystem;
+    public Stat soulsDropAmount;
+
 
     [Header("Leval Details")]
     [SerializeField] private int leval = 1;
@@ -15,6 +17,7 @@ public class EnemyStats : CharacterStats
 
     protected override void Start()
     {
+        soulsDropAmount.SetDefaultValue(100);
         ApplyLevalModifiers();
         base.Start();
 
@@ -62,7 +65,8 @@ public class EnemyStats : CharacterStats
     protected override void Die()
     {
         base.Die();
+        myDropSystem.GenerateDrop();
+        PlayerManager.Instance.currency += soulsDropAmount.GetValue();
         enemy.Die();
-        myDropSystem.GenerateDrop(); 
     }
 }

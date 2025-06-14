@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+public class Inventory : MonoBehaviour, ISaveManager
 {
     #region Instance
     private static Inventory instance;
@@ -43,11 +47,16 @@ public class Inventory : MonoBehaviour
     private float lastTimeUsedArmor;
 
 
+    [Header("Data base")]
+    public List<ItemData> itemDataBase;
+    public List<InventoryItem> loadedItems;
+    public List<ItemData_Equipment> loadedEquipment;
+
     #region Awake
     private void Awake()
     {
         // 测试调试
-        Debug.Log(num++ + gameObject.name);
+        //Debug.Log(num++ + gameObject.name);
         if (instance == null)
         {
             instance = this;
@@ -74,11 +83,34 @@ public class Inventory : MonoBehaviour
         stashItemSlot = stashSlotParent.GetComponentsInChildren<UI_ItemSlot>();
         equipmentSlot = equipmentSlotParent.GetComponentsInChildren<UI_EquipmentSlot>();
         statSlot = statSlotParent.GetComponentsInChildren<UI_StatSlot>();
-        AddStartingItems();
+
+        // 应该等待读档结束再执行，教程没遇到这个问题，很奇怪
+        //AddStartingItems();
+        Invoke("AddStartingItems",1); 
     }
 
     private void AddStartingItems()
     {
+        foreach (ItemData_Equipment item in loadedEquipment)
+        {
+            EquipItem(item);
+        }
+
+        //Debug.Log("加载的物品的数量"+loadedItems.Count);
+        if (loadedItems.Count > 0)
+        {
+            foreach (InventoryItem item in loadedItems)
+            {
+                for (int i = 0; i < item.stackSize; i++)
+                {
+                    // AddItem会区分是材料还是装备，将它们添加到对应的列表中
+                    AddItem(item.data);
+                }
+            }
+            //Debug.Log("从存档加载物品");
+            return;
+        }
+
         for (int i = 0; i < startingItems.Count; i++)
         {
             if (startingItems[i] != null)
@@ -279,7 +311,6 @@ public class Inventory : MonoBehaviour
     /// <returns></returns>
     public bool CanCraft(ItemData_Equipment _itemToCraft, List<InventoryItem> _requiredMaterials)
     {
-        List<InventoryItem> materialsToRemove = new List<InventoryItem>();
         for (int i = 0; i < _requiredMaterials.Count; i++)
         {
             if (stashDictionary.TryGetValue(_requiredMaterials[i].data, out InventoryItem stashValue))
@@ -289,10 +320,6 @@ public class Inventory : MonoBehaviour
                     Debug.Log(_requiredMaterials[i].data.itemName + " not enough.");
                     return false;
                 }
-                else
-                {
-                    materialsToRemove.Add(stashValue);
-                }
             }
             else
             {
@@ -301,11 +328,18 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < materialsToRemove.Count; i++)
+        // If all materials are avalible, remove them from stash.
+
+        foreach (var requiredMaterial in _requiredMaterials)
         {
-            RemoveItem(materialsToRemove[i].data);
+            for (int i = 0; i < requiredMaterial.stackSize; i++)
+            {
+                RemoveItem(requiredMaterial.data);
+            }
         }
+
         AddItem(_itemToCraft);
+        Debug.Log("Craft is succsesful: " + _itemToCraft.name);
         return true;
     }
 
@@ -342,7 +376,7 @@ public class Inventory : MonoBehaviour
             return;
         // Tips:在这里比较falskCooldown会避免刚开始无法使用道具的问题，因为一开始的时候Time.time是0，如果后边比较的cd是物品真实CD，就会出现开局无法使用
         // 比如道具CD15秒，那么游戏前15秒将无法使用这个道具。
-        // 修改为下方写法之后，开局使用道具之前，Cooldown是空的，所以是0，在使用之后在设置为使用的道具的CD即可
+        // 修改为下方写法之后，开局使用道具之前，flaskCooldown是空的，所以是0，在使用之后在设置为使用的道具的CD即可
         bool canUseFlask = Time.time > lastTimeUsedFlask + flaskCooldown;
 
         if (canUseFlask)
@@ -368,4 +402,79 @@ public class Inventory : MonoBehaviour
         Debug.Log("Armor on cooldown");
         return false;
     }
+
+    public void LoadData(GameData _data)
+    {
+        //Debug.Log("读档物品");
+        //FillUpItemDataBase(); 用于测试查看填充的数据
+        foreach (KeyValuePair<string, int> pair in _data.inventory)
+        {
+            // 需要手动填充itemDataBase，右键该脚本，选择"Fill up item data base"，会将Assets/Data/Items下的所有ItemData填充到itemDataBase中
+            foreach (var item in itemDataBase)
+            {
+                if (item != null && item.itemId == pair.Key)
+                {
+                    InventoryItem itemToLoad = new InventoryItem(item);
+                    itemToLoad.stackSize = pair.Value;
+                    loadedItems.Add(itemToLoad);
+                }
+            }
+        }
+        //Debug.Log("读档物品数量"+loadedItems.Count);
+        foreach (string loadedItemId in _data.equipmentId)
+        {
+            foreach (var item in itemDataBase)
+            {
+                if (item != null && loadedItemId == item.itemId)
+                {
+                    loadedEquipment.Add(item as ItemData_Equipment);
+                }
+            }
+        }
+    }
+
+    public void SaveData(ref GameData _data)
+    {
+        _data.inventory.Clear();
+        _data.equipmentId.Clear();
+
+        foreach (KeyValuePair<ItemData, InventoryItem> pair in inventoryDictionary)
+        {
+            //Debug.Log(pair.Key.itemId);
+            _data.inventory.Add(pair.Key.itemId, pair.Value.stackSize);
+        }
+
+        foreach (KeyValuePair<ItemData, InventoryItem> pair in stashDictionary)
+        {
+            //Debug.Log(pair.Key.itemId);
+            _data.inventory.Add(pair.Key.itemId, pair.Value.stackSize);
+        }
+
+        foreach (KeyValuePair<ItemData_Equipment, InventoryItem> pair in equipmentDictionary)
+        {
+            //Debug.Log(pair.Key.itemId);
+            _data.equipmentId.Add(pair.Key.itemId);
+        }
+        //Debug.Log("保存物品");
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Fill up item data base")]
+    private void FillUpItemDataBase() => itemDataBase = new List<ItemData>(GetItemDataBase());
+
+    private List<ItemData> GetItemDataBase()
+    {
+        List<ItemData> itemDataBase = new List<ItemData>();
+        string[] assetNames = AssetDatabase.FindAssets("", new[] { "Assets/Data/Items" });
+
+        foreach (string SOName in assetNames)
+        {
+            var SOpath = AssetDatabase.GUIDToAssetPath(SOName);
+            var itemData = AssetDatabase.LoadAssetAtPath<ItemData>(SOpath);
+            itemDataBase.Add(itemData);
+        }
+
+        return itemDataBase;
+    }
+#endif
 }

@@ -32,5 +32,11 @@ public class PlayerIdleState : PlayerGroundedState
         {
             stateMachine.ChangeState(player.moveState);
         }
+        // TODO:在移动时受击的一瞬间松手，玩家会保持Idle状态滑行，很奇怪
+        if(xInput ==0)
+        {
+            player.SetZeroVelocity();
+
+        }
     }
 }

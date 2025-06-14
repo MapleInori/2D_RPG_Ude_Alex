@@ -24,6 +24,8 @@ public class Enemy : Entity
     [Header("Attack Info")]
     public float attackDistance;
     public float attackCoolDown;
+    public float minAttackCooldown = 1;
+    public float maxAttackCooldown = 2;
     public float lastTimeAttacked;
 
     

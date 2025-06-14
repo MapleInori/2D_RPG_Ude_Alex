@@ -16,6 +16,10 @@ public class SkeletonBattleState : EnemyState
     {
         base.Enter();
         player = PlayerManager.Instance.player.transform;
+
+        if (player.GetComponent<PlayerStats>().isDead)
+            stateMachine.ChangeState(enemy.moveState);
+
         stateTimer = enemy.battleTime;
     }
 
@@ -30,6 +34,12 @@ public class SkeletonBattleState : EnemyState
     public override void Update()
     {
         base.Update();
+
+        if(player == null)
+        {
+            player = PlayerManager.Instance.player.transform;
+        }
+
 
         // 在正前方会重置索敌时间，如果只是在检测半径内，索敌时间不会重置
         if (enemy.isPlayerDetected())
@@ -76,6 +86,7 @@ public class SkeletonBattleState : EnemyState
     {
         if (Time.time >= enemy.lastTimeAttacked + enemy.attackCoolDown)
         {
+            enemy.attackCoolDown = Random.Range(enemy.minAttackCooldown, enemy.maxAttackCooldown);
             enemy.lastTimeAttacked = Time.time;
             return true;
         }

@@ -77,11 +77,11 @@ public class CharacterStats : MonoBehaviour
 
     public bool isDead { get; private set; }
     private bool isVulnerable;
-
+    public bool isInvincible { get; private set; }
 
     protected virtual void Start()
     {
-        critPower.SetDefaltValue(150);
+        critPower.SetDefaultValue(150);
         currentHealth = GetMaxHealthValue();
 
         fx = GetComponent<EntityFX>();
@@ -161,6 +161,7 @@ public class CharacterStats : MonoBehaviour
     public virtual void DoDamage(CharacterStats _targetStats)
     {
         if (TargetCanAvoidAttack(_targetStats)) return;
+        _targetStats.GetComponent<Entity>().SetupKnockbackDir(transform);
         string attackLog = "初始伤害：";
         float totalDamage = damage.GetValue() + strength.GetValue();
         attackLog += totalDamage;
@@ -173,11 +174,11 @@ public class CharacterStats : MonoBehaviour
 
         totalDamage = CheckTargetArmor(_targetStats, totalDamage);
         // 结算伤害时再四舍五入为整数
-        _targetStats.TakeDamage(Mathf.RoundToInt( totalDamage));
-        attackLog += "实际伤害：" + totalDamage;
+        _targetStats.TakeDamage(Mathf.RoundToInt(totalDamage));
+        attackLog += "实际伤害：" + Mathf.RoundToInt(totalDamage);
         Debug.Log(attackLog);
-        // 如果武器有魔法属性，则可以造成魔法伤害，目前还没有，主要由水晶造成魔法伤害
-        DoMagicalDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
+
+        //DoMagicalDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
     }
 
     #region Magical Damage and Ailments
@@ -190,6 +191,7 @@ public class CharacterStats : MonoBehaviour
         int totalMagicDamage = _fireDamage + _iceDamage + _lightingDamage + intelligence.GetValue();
 
         totalMagicDamage = CheckTargetResistant(_targetStats, totalMagicDamage);
+        _targetStats.GetComponent<Entity>().SetupKnockbackDir(transform);
         _targetStats.TakeDamage(totalMagicDamage);
 
         if (Mathf.Max(_fireDamage, _iceDamage, _lightingDamage) <= 0) return;
@@ -369,6 +371,8 @@ public class CharacterStats : MonoBehaviour
     /// <param name="_damage">受到伤害的值</param>
     public virtual void TakeDamage(int _damage)
     {
+        if (isInvincible) return;
+
         DecreaseHealthBy(_damage);
         GetComponent<Entity>().DamageImpact();
         fx.StartCoroutine("FlashFX");
@@ -412,6 +416,16 @@ public class CharacterStats : MonoBehaviour
     protected virtual void Die()
     {
         isDead = true;
+    }
+
+    public virtual  void KillSelf()
+    {
+        Die();
+    }
+
+    public void SetInvincible(bool _isInvincible)
+    {
+        isInvincible = _isInvincible;
     }
 
     #region Stat Calculations

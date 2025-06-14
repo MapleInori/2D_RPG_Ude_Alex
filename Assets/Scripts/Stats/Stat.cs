@@ -21,7 +21,7 @@ public class Stat
         return finalValue;
     }
 
-    public void SetDefaltValue(int _value)
+    public void SetDefaultValue(int _value)
     {
         baseValue = _value;
     }

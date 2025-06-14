@@ -15,6 +15,12 @@ public class ItemDrop : MonoBehaviour
     /// </summary>
     public virtual void GenerateDrop()
     {
+        if(possibleDrop.Length == 0)
+        {
+            Debug.Log("Item Pool is Empty");
+            return;
+        }
+
         for (int i = 0; i < possibleDrop.Length; i++)
         {
             if(Random.Range(0,100) < possibleDrop[i].dropChance)
@@ -22,11 +28,22 @@ public class ItemDrop : MonoBehaviour
                 dropList.Add(possibleDrop[i]);
             }
         }
+        // 似乎是因为没东西的原因？
+        if(dropList.Count <=0 )
+        {
+            return;
+        }
 
         for (int i = 0; i < possibleItemDrop; i++)
         {
-            ItemData randomItem = dropList[Random.Range(0, dropList.Count - 1)];//TODO:索引可能溢出？有时候会报错，为什么。似乎是死亡的时候掉落之后又触发了一下？
-
+            // 终于给我Debug到了，物品掉完之后还会继续进行判断导致的索引溢出，其实这时候dropList.Count已经是0了，依然来了一次循环导致的报错
+            if (dropList.Count <= 0)
+            {
+                return;
+            }
+            int randomNum = Random.Range(0, dropList.Count);//根据Range左闭右开特性，右边不需要减一
+            ItemData randomItem = dropList[randomNum];//TODO:索引可能溢出？有时候会报错，为什么。似乎是死亡的时候掉落之后又触发了一下？DONE:上边解决了
+            Debug.Log(i+":"+dropList.Count +"\n "+randomItem.itemName+" " + randomNum);
             dropList.Remove(randomItem);
             DropItem(randomItem);
         }

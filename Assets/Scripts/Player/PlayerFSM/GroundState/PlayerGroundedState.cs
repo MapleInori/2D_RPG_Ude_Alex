@@ -21,8 +21,12 @@ public class PlayerGroundedState : PlayerState
     public override void Update()
     {
         base.Update();
-        if(Input.GetKeyDown(KeyCode.R) && player.skill.blackHole.blackholeUnlocked)
+        if(Input.GetKeyDown(KeyCode.R) && player.skill.blackHole.blackholeUnlocked )
         {
+            if(player.skill.blackHole.cooldownTimer >0)
+            {
+                return;
+            }
             stateMachine.ChangeState(player.blackHoleState);
         }
         if(Input.GetKeyDown(KeyCode.Q) && player.skill.parry.parryUnlocked)

@@ -117,11 +117,11 @@ public class Sword_Skill_Controller : MonoBehaviour
     {
         // TODO:不知为何，加上这段代码后，剑会有吸附效果，当到敌人一定距离后会瞬移到目标点，太奇怪了。
         // 主要是穿刺剑需要进行图像的朝向修正
-        if (canRotate)
-        {
-            // 剑初始指向右边，只要让右边的方向一直等于速度的方向即可
-            transform.right = rb.velocity;
-        }
+        //if (canRotate)
+        //{
+        //    // 剑初始指向右边，只要让右边的方向一直等于速度的方向即可
+        //    transform.right = rb.velocity;
+        //}
 
         if (isReturning)
         {

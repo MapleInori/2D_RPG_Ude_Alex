@@ -15,8 +15,10 @@ MonoBehaviour:
   itemType: 1
   itemName: Amulet Of God
   icon: {fileID: -245851270, guid: a9ca9a41598dd2e44b125928045c518f, type: 3}
+  itemId: f7ef28b1162626246834a06ad7028d9f
   dropChance: 0
   equipmentType: 2
+  itemCooldown: 0
   itemEffects:
   - {fileID: 11400000, guid: 1c079e3e4a84ba040b23508cbcde0e90, type: 2}
   strength: 0

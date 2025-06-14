@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 /// <summary>
@@ -19,7 +16,7 @@ public class PlayerState
     private string animBoolName;
 
 
-    public PlayerState (Player _player, PlayerStateMachine stateMachine,string _animBoolName)
+    public PlayerState(Player _player, PlayerStateMachine stateMachine, string _animBoolName)
     {
         this.stateMachine = stateMachine;
         this.player = _player;
@@ -33,7 +30,7 @@ public class PlayerState
     {
         //Debug.Log("Goto " + this.GetType().Name);
         // 进入状态时设置动画参数
-        player.anim.SetBool(animBoolName,true);
+        player.anim.SetBool(animBoolName, true);
         rb = player.rb;
         triggerCalled = false;
     }
@@ -44,9 +41,9 @@ public class PlayerState
     {
         xInput = Input.GetAxisRaw("Horizontal");
         yInput = Input.GetAxisRaw("Vertical");
-        player.anim.SetFloat("yVelocity",rb.velocity.y);
+        player.anim.SetFloat("yVelocity", rb.velocity.y);
         // 状态之间冲刺预输入处理，优化手感
-        if(Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             dashPreInput = true;
             player.dashDir = Input.GetAxisRaw("Horizontal");
@@ -54,7 +51,7 @@ public class PlayerState
                 player.dashDir = player.facingDir;
         }
 
-        if(stateTimer >=0)
+        if (stateTimer >= 0)
         {
             stateTimer -= Time.deltaTime;
         }
@@ -62,7 +59,6 @@ public class PlayerState
         if (Input.GetKeyDown(KeyCode.U) && HasNoSword() && player.skill.sword.swordUnlocked)
         {
             stateMachine.ChangeState(player.aimSwordState);
-            return;
         }
     }
 

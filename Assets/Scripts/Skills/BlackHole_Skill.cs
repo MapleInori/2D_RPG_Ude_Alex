@@ -32,6 +32,9 @@ public class BlackHole_Skill : Skill
         currentBlackHole = newBlackHole.GetComponent<BlackHole_Skill_Controller>();
 
         currentBlackHole.SetupBlackHole(maxSize, growSpeed, shrinkSpeed, amountOfAttack, cloneAttackCoolDown,blackHoleDuration);
+
+        AudioManager.Instance.PlaySFX(3, player.transform);
+        AudioManager.Instance.PlaySFX(6, player.transform);
     }
 
     protected override void Start()
@@ -73,5 +76,11 @@ public class BlackHole_Skill : Skill
     {
         // 除以2是对应碰撞体半径为图像大小的一半
         return maxSize / 2;
+    }
+    protected override void CheckUnlock()
+    {
+        base.CheckUnlock();
+
+        UnlockBlackhole();
     }
 }

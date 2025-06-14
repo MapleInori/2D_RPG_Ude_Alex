@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class ItemObject : MonoBehaviour
@@ -44,6 +43,7 @@ public class ItemObject : MonoBehaviour
             return;
         }
         //Debug.Log("Picked Up " + itemData.itemName);
+        AudioManager.Instance.PlaySFX(9, transform);
         Inventory.Instance.AddItem(itemData);
 
         Destroy(gameObject);

@@ -30,7 +30,7 @@ public class SkillManager : MonoBehaviour
         }
 
         _instance = this;
-        DontDestroyOnLoad(gameObject); // 按需决定是否跨场景保留
+        //DontDestroyOnLoad(gameObject); // 按需决定是否跨场景保留
     }
 
     private void Start()
