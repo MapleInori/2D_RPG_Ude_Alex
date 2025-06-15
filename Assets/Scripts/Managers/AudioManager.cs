@@ -57,7 +57,7 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject); // 销毁当前实例避免冲突
         else
             instance = this; // 首次创建时设置实例引用
-        // 重新加载会清空音效列表
+        // 重新加载会清空音效列表，（并不是，是因为引用的音效资源都在场景中，而场景中的音效都被销毁重建了，所以导致这里列表被清空了），取消下一行即可
         //DontDestroyOnLoad(gameObject);
         // 延迟1秒启用音效：避免场景加载时立即播放音效，由于开始一瞬间会打开技能树保证引用正常和数据加载，所以这里延迟一秒，不然刚开始会有一声切换声音
         Invoke("AllowSFX", 1f);

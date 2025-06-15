@@ -32,16 +32,16 @@ public class SaveManager : MonoBehaviour
         else
             instance = this;
         //DontDestroyOnLoad(gameObject); // 按需决定是否跨场景保留
+        dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, encryptData);
     }
 
     // Start方法在场景加载后调用
     private void Start()
     {
         // 初始化文件数据处理器
-        dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, encryptData);
         // 查找场景中所有实现ISaveManager接口的组件，等待其他加载完成再获取，不然会漏掉某些，比如技能树，为什么教程没漏？
         saveManagers = FindAllSaveManagers();
-
+        Debug.Log(dataHandler);
         // 加载游戏数据
         LoadGame();
     }
@@ -110,6 +110,10 @@ public class SaveManager : MonoBehaviour
     // 检查是否存在存档数据
     public bool HasSavedData()
     {
+        if(dataHandler ==null)
+        {
+            Debug.LogError("Data handler is not initialized. Please call Start() first.");
+        }
         if (dataHandler.Load() != null)
         {
             return true;

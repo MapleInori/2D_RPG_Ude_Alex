@@ -12,7 +12,10 @@ public class UI_MainMenu : MonoBehaviour
     private void Start()
     {
         if (SaveManager.Instance.HasSavedData() == false)
+        {    
             continueButton.SetActive(false);
+        }
+        Debug.Log("MainScene");
     }
 
     public void ContinueGame()

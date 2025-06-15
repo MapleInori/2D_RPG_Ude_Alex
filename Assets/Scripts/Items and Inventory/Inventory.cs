@@ -20,6 +20,7 @@ public class Inventory : MonoBehaviour, ISaveManager
     #endregion
 
     public List<ItemData> startingItems;
+    public List<int> startingItemsAmount;
 
     public List<InventoryItem> equipment;   // 装备栏
     public Dictionary<ItemData_Equipment, InventoryItem> equipmentDictionary;
@@ -86,7 +87,7 @@ public class Inventory : MonoBehaviour, ISaveManager
 
         // 应该等待读档结束再执行，教程没遇到这个问题，很奇怪
         //AddStartingItems();
-        Invoke("AddStartingItems",1); 
+        Invoke("AddStartingItems", 1);
     }
 
     private void AddStartingItems()
@@ -113,10 +114,12 @@ public class Inventory : MonoBehaviour, ISaveManager
 
         for (int i = 0; i < startingItems.Count; i++)
         {
-            if (startingItems[i] != null)
+            if (startingItems[i] != null && startingItemsAmount[i] != 0)
             {
-                AddItem(startingItems[i]);
-
+                for (int j = 0; j < startingItemsAmount[i]; j++)
+                {
+                    AddItem(startingItems[i]);
+                }
             }
         }
     }
@@ -209,7 +212,7 @@ public class Inventory : MonoBehaviour, ISaveManager
     }
 
     /// <summary>
-    /// TODO:捡东西时会出问题，如果背包满了，东西消失但是没捡到，背包判满应该在捡的时候判断
+    /// TODO:捡东西时会出问题，如果背包满了，东西消失但是没捡到，背包判满应该在捡的时候判断.DONE.
     /// </summary>
     /// <param name="item"></param>
     public void AddItem(ItemData item)

@@ -28,7 +28,7 @@ public class PlayerState
     /// </summary>
     public virtual void Enter()
     {
-        //Debug.Log("Goto " + this.GetType().Name);
+        Debug.Log("Goto " + this.GetType().Name);
         // 进入状态时设置动画参数
         player.anim.SetBool(animBoolName, true);
         rb = player.rb;
@@ -39,6 +39,11 @@ public class PlayerState
     /// </summary>
     public virtual void Update()
     {
+
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
         xInput = Input.GetAxisRaw("Horizontal");
         yInput = Input.GetAxisRaw("Vertical");
         player.anim.SetFloat("yVelocity", rb.velocity.y);
