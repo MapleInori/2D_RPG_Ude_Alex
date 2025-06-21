@@ -178,7 +178,7 @@ public class CharacterStats : MonoBehaviour
         attackLog += "实际伤害：" + Mathf.RoundToInt(totalDamage);
         Debug.Log(attackLog);
 
-        //DoMagicalDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
+        DoMagicalDamage(_targetStats);// 注销与否，普攻是否造成魔法伤害
     }
 
     #region Magical Damage and Ailments

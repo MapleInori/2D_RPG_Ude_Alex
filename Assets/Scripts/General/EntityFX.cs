@@ -16,6 +16,10 @@ public class EntityFX : MonoBehaviour
     [SerializeField] private Color[] igniteColor;
     [SerializeField] private Color[] shockColor;
 
+    [Header("Ailment Particle")]
+    [SerializeField] private ParticleSystem igniteFX;
+    [SerializeField] private ParticleSystem chillFX;
+    [SerializeField] private ParticleSystem shockFX;
 
     private void Start()
     {
@@ -59,20 +63,25 @@ public class EntityFX : MonoBehaviour
             sr.color = Color.red;
         }
     }
-
+    // TODO:应该只关闭到时间的粒子效果，而不是统一关闭所有，应该分给各自单独判断
     private void CancelColorChange()
     {
         CancelInvoke();
         sr.color = Color.white;
+        igniteFX.Stop();
+        chillFX.Stop();
+        shockFX.Stop();
     }
 
     public void IgniteFxFor(float _sconds)
     {
+        igniteFX.Play();
         InvokeRepeating("IgniteColorFx", 0, 0.3f);
         Invoke("CancelColorChange", _sconds);
     }
     public void ChillFxFor(float _sconds)
     {
+        chillFX.Play();
         // 这种方式会被后续受击闪烁的白色覆盖导致只有一瞬的蓝色
         // ChillColorFx();
         InvokeRepeating("ChillColorFx", 0, 0.3f);
@@ -82,6 +91,7 @@ public class EntityFX : MonoBehaviour
 
     public void ShockFxFor(float _sconds)
     {
+        shockFX.Play();
         InvokeRepeating("ShockColorFx", 0, 0.3f);
         Invoke("CancelColorChange", _sconds);
     }

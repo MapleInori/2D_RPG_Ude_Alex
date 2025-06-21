@@ -9,7 +9,9 @@ public class EnemyState
     protected Rigidbody2D rb;
 
     protected string animBoolName;
-
+    /// <summary>
+    /// 动画上的触发标志，进入状态时重置为false
+    /// </summary>
     protected bool triggerCalled;
     protected float stateTimer;
 
