@@ -36785,6 +36785,9 @@ MonoBehaviour:
   igniteFX: {fileID: 484389485}
   chillFX: {fileID: 1884019391}
   shockFX: {fileID: 1710381605}
+  afterImagePrefab: {fileID: 8463881014877109629, guid: 3df8763d4db144140942f09ae351d535, type: 3}
+  looseRate: 1
+  afterImageCooldown: 0.05
 --- !u!114 &848447086
 MonoBehaviour:
   m_ObjectHideFlags: 0

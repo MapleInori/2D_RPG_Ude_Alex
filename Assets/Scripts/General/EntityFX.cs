@@ -21,10 +21,32 @@ public class EntityFX : MonoBehaviour
     [SerializeField] private ParticleSystem chillFX;
     [SerializeField] private ParticleSystem shockFX;
 
+    [Header("AfterImageFX")]
+    [SerializeField] private GameObject afterImagePrefab;
+    [SerializeField] private float looseRate;
+    [SerializeField] private float afterImageCooldown;
+    private float afterImageCooldownTimer;
+
     private void Start()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
         originalMat = sr.material;
+    }
+
+    private void Update()
+    {
+        afterImageCooldownTimer -= Time.deltaTime;
+    }
+
+    public void CreateAfterImage()
+    {
+        if(afterImageCooldownTimer <= 0)
+        {
+            GameObject afterImage = Instantiate(afterImagePrefab, transform.position, transform.rotation);
+            afterImage.GetComponent<AfterImageFX>().SetupAfterImage(looseRate, sr.sprite);
+            afterImageCooldownTimer = afterImageCooldown;
+        }
+
     }
 
     public void MakeTransparent(bool _transparent)
