@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,13 +20,14 @@ public class GameManager : MonoBehaviour, ISaveManager
     [SerializeField] private float lostCurrencyY;
     private bool pasuedGame;
 
+
+
     private void Awake()
     {
         if (instance != null && instance != this)
             Destroy(gameObject);
         else
             instance = this;
-
         //DontDestroyOnLoad(gameObject); 不再保留，重新加载场景时重新获取检查点情况
     }
     private void Start()

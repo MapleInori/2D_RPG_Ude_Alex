@@ -10,55 +10,54 @@ public class Player : Entity
 {
 
     [Header("Attack Info")]
-    public float[] attackMovement;
-    public float counterAttackDuration = 0.2f;
-    public float baseAttackSpeed = 1f;
-    public float extraAttackSpeed = 0f;
+    public float[] attackMovement;          // 不同攻击动作的前冲力量数组
+    public float counterAttackDuration = 0.2f; // 反击窗口持续时间
+    public float baseAttackSpeed = 1f;      // 基础攻击速度
+    public float extraAttackSpeed = 0f;     // 额外攻击速度加成
 
+    public bool isBusy { get; private set; } // 标记玩家是否处于忙碌状态（无法响应输入）
 
-
-    public bool isBusy { get; private set; }
     [Header("Move Info")]
-    public float moveSpeed = 7f;
-    public float jumpForce = 16f;
-    public float wallJumpForce = 6f;
-    public float dropAttackForce = 50f;
-    public float swordReturnImpact = 16f;
-    public bool isDropAttacking;
-    private float defaultMoveSpeed;
-    private float defaultJumpForce;
+    public float moveSpeed = 7f;            // 基础移动速度
+    public float jumpForce = 16f;           // 普通跳跃力量
+    public float wallJumpForce = 6f;        // 蹬墙跳力量
+    public float dropAttackForce = 50f;     // 下落攻击力量
+    public float swordReturnImpact = 16f;   // 接剑时的冲击力
+    public bool isDropAttacking;            // 标记是否正在下落攻击
+    private float defaultMoveSpeed;         // 默认移动速度（用于重置）
+    private float defaultJumpForce;         // 默认跳跃力量（用于重置）
 
     [Header("Dash Info")]
-    public float dashSpeed; 
-    public float dashDuration;
-    public float dashCoolDown;
-    private float defaultDashSpeed;
-    [HideInInspector]public float dashUsageTimer;
-    [HideInInspector]public float dashDir;
+    public float dashSpeed;                 // 冲刺速度
+    public float dashDuration;              // 冲刺持续时间
+    public float dashCoolDown;              // 冲刺冷却时间
+    private float defaultDashSpeed;         // 默认冲刺速度（用于重置）
+    [HideInInspector] public float dashUsageTimer; // 冲刺使用计时器
+    [HideInInspector] public float dashDir;       // 冲刺方向
 
+    [HideInInspector] public SkillManager skill; // 技能管理器引用
+    public GameObject sword;                // 玩家持有的剑对象
 
-    [HideInInspector]public SkillManager skill;
-    public GameObject sword;
 
     #region States
-    // 声明状态机，用于状态控制
-    public PlayerStateMachine stateMachine { get; private set; }
+    public PlayerStateMachine stateMachine { get; private set; }                // 声明状态机，用于状态控制    
     // 声明各种状态，用于后续状态切换，得先有这个状态，才能换到这个状态
-    public PlayerIdleState idleState { get; private set; }
-    public PlayerMoveState moveState { get; private set; }
-    public PlayerAirState airState { get; private set; }
-    public PlayerJumpState jumpState { get; private set; }
-    public PlayerDashState dashState { get; private set; }
-    public PlayerWallSlideState wallSlideState { get; private set; }
-    public PlayerWallHoldState wallHoldState { get; private set; }
-    public PlayerWallJumpState wallJumpState { get; private set; }
-    public PlayerPrimaryAttackState primaryAttackState { get; private set; }
-    public PlayerDropAttackState dropAttackState { get; private set; }
-    public PlayerCounterAttackState counterAttackState { get; private set; }
-    public PlayerAimSwordState aimSwordState { get; private set; }
-    public PlayerCatchSwordState catchSwordState { get; private set; }
-    public PlayerBlackHoleState blackHoleState { get; private set; }
-    public PlayerDeadState deadState { get; private set; }
+    public PlayerIdleState idleState { get; private set; }                      // 空闲状态
+    public PlayerMoveState moveState { get; private set; }                      // 移动状态
+    public PlayerAirState airState { get; private set; }                        // 空中状态
+    public PlayerJumpState jumpState { get; private set; }                      // 跳跃状态
+    public PlayerDashState dashState { get; private set; }                      // 冲刺状态
+    public PlayerWallSlideState wallSlideState { get; private set; }            // 滑墙状态
+    public PlayerWallHoldState wallHoldState { get; private set; }              // 贴墙状态
+    public PlayerWallJumpState wallJumpState { get; private set; }              // 蹬墙跳状态
+    public PlayerPrimaryAttackState primaryAttackState { get; private set; }    // 主要攻击状态
+    public PlayerDropAttackState dropAttackState { get; private set; }          // 下落攻击状态
+    public PlayerCounterAttackState counterAttackState { get; private set; }    // 反击状态
+    public PlayerAimSwordState aimSwordState { get; private set; }              // 瞄准扔剑状态
+    public PlayerCatchSwordState catchSwordState { get; private set; }          // 接剑状态
+    public PlayerBlackHoleState blackHoleState { get; private set; }            // 黑洞技能状态
+    public PlayerDeadState deadState { get; private set; }                      // 死亡状态
+
 
     #endregion
 
@@ -95,6 +94,7 @@ public class Player : Entity
         base.Start();
         stateMachine.Initialize(idleState);
         // 简化Player中对Skill调用的写法，写在Start等待SkillManager实例化完成
+        // 异步获取技能管理器实例
         StartCoroutine(GetInstance());
         SaveDefaultSpeed();
     }
